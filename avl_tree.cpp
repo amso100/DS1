@@ -84,3 +84,49 @@ Data& AVLTree<Key,Data>::findInTree(Key key_tofind){
 
 }
 
+template<class Key,class Data>
+void AVLTree<Key,Data>::shiftRR(AVLTreeNode<Key,Data>* node){
+	if(!node){
+		return;
+	}
+	if(!node->left_node){
+		return;
+	}
+	AVLTreeNode<Key,Data>* temp = new AVLTreeNode<Key,Data>*();
+	*temp = *node->left_node;
+	*node->left_node = *temp->right_node
+	*temp->right_node = *node;
+	delete temp;
+}
+
+template<class Key,class Data>
+void AVLTree<Key,Data>::shiftLL(AVLTreeNode<Key,Data>* node){
+	if(!node){
+		return;
+	}
+	if(!node->right_node){
+		return;
+	}
+	AVLTreeNode<Key,Data>* temp = new AVLTreeNode<Key,Data>*();
+	*temp = *node->right_node;
+	*node->right_node = *temp->left_node
+	*temp->left_node = *node;
+	delete temp;
+}
+
+template<class Key,class Data>
+void AVLTree<Key,Data>::shiftRL(AVLTreeNode<Key,Data>* node){
+	if(!node){
+		return;
+	}
+	if(!node->left_node){
+		return;
+	}
+	shiftRR(node->left_node);
+	shirtLL(node);
+}
+template<class Key,class Data>
+void AVLTree<Key,Data>::placeInTree(AVLTreeNode<Key,Data>* node){
+// continue
+}
+

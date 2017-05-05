@@ -24,12 +24,16 @@ template <class Key,class Data>
 class AVLTreeNode{
 	Key key;
 	Data data;
+	int balanceFactor;
 	AVLTreeNode* left_node;
 	AVLTreeNode* right_node;
 public:
 	AVLTreeNode(Data data,Key key);
 	~AVLTreeNode(){};
 	AVLTreeNode(const AVLTreeNode& avl);
+	int getBF(){
+		return this->balanceFactor;
+	}
 };
 
 /**
@@ -52,16 +56,56 @@ public:
  * 		size - returns the amount of nodes in the tree.
  *
  */
-template <class Key,class Data>
+template<class Key,class Data>
 class AVLTree{
 	int numOfNodes;
 	AVLTreeNode* root;
+
 	void deleteTree(AVLTreeNode<Key,Data>* root);
 	Data& findCurrentNode(AVLTreeNode<Key,Data>* node,Key key);
 	void placeInTree(AVLTreeNode<Key,Data>* node);
+	void shiftRR(AVLTreeNode<Key,Data>* node);
+	void shiftLL(AVLTreeNode<Key,Data>* node);
+	void shiftRL(AVLTreeNode<Key,Data>* node);
 public:
 	AVLTree();
 	~AVLTree();
+
+	// Test Functions/////
+	bool testAllBFs(AVLTreeNode<Key,Data>* node){
+		if(!node){
+			return true;
+		}
+		if((*node->getBF()< -1)||(*node->getBF()> 1)){
+			return false;
+		}
+		return ((testAllBFs(*node->left_node))&&(testAllBFs(*node->right_node)));
+	}
+
+	void addValuesToTree(Data* array,AVLTreeNode<Key,Data>* node){
+		if(!node){
+			return;
+		}
+		addValuesToTree(array,*node->left_node);
+		*array = *node->data;
+		addValuesToTree(array+1,*node->right_node);
+		return;
+	}
+	bool testSearchTree(AVLTreeNode<Key,Data>* node){
+		if(!node){
+			return false;
+		}
+		Data array[]= new Data[numOfNodes];
+		addValuesToTree(array,root);
+		for(int i=0;i<numOfNodes-1;i++){
+			if(array[i]>=array[i+1]){
+				return false;
+			}
+		}
+		delete array;
+		return true;
+	}
+	///// The rest of the tree functions//////
 	Data& findInTree(Key key_tofind);
 	void  insertToTree(Key key,Data data);
 	void  removeFromTree(Key key);
