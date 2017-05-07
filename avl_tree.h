@@ -28,15 +28,26 @@ class AVLTreeNode{
 	AVLTreeNode<Key, Data>* left_node;
 	AVLTreeNode<Key, Data>* right_node;
 public:
+
+	enum RollStatus {
+			RR,
+			RL,
+			LR,
+			LL
+		};
+
 	AVLTreeNode(Data data,Key key);
 	~AVLTreeNode(){};
 	AVLTreeNode(const AVLTreeNode& avl);
 	int GetHeight();
 	bool IsLeaf();
-	void UpdateHeight(int new_h);
+	void IncHeight();
+	void SubHeight();
 	int BalanceFactor();
 	Key& GetKey();
 	Data& GetData();
+
+	RollStatus GetStatus();
 };
 
 /**
@@ -71,6 +82,8 @@ class AVLTree{
 	void shiftLL(AVLTreeNode<Key,Data>* node);
 	void shiftRL(AVLTreeNode<Key,Data>* node);
 	void RemoveFromTree_Aux(Key key, AVLTree<Key, Data>* root);
+	void Preorder_aux(AVLTreeNode<Key,Data>* root);
+	void Inorder_aux(AVLTreeNode<Key,Data>* root);
 public:
 	AVLTree();
 	~AVLTree();
@@ -115,6 +128,8 @@ public:
 	void  removeFromTree(Key key);
 	int getNodeBF(Key key);
 	int size();
+	void PrintInorder();
+	void PrintPreorder();
 
 	AVLTree(const AVLTree&)=delete;
 };

@@ -25,10 +25,13 @@ AVLTreeNode<Key,Data>::AVLTreeNode(const AVLTreeNode& avl){
 }
 
 template <class Key,class Data>
-void AVLTreeNode<Key, Data>::UpdateHeight(int new_h) {
-	if(new_h < 0)
-		throw InvalidHeight();
-	this->height = new_h;
+void AVLTreeNode<Key, Data>::IncHeight() {
+	this->height++;
+}
+
+template <class Key,class Data>
+void AVLTreeNode<Key, Data>::SubHeight() {
+	this->height--;
 }
 
 template <class Key,class Data>
@@ -65,6 +68,11 @@ Key& AVLTreeNode<Key, Data>::GetKey() {
 template <class Key,class Data>
 Data& AVLTreeNode<Key, Data>::GetData() {
 	return this->data;
+}
+
+template <class Key,class Data>
+RollStatus AVLTreeNode<Key, Data>::GetStatus() {
+	return RL;
 }
 
 /////////// AvlTree functions///////////////////////
@@ -180,11 +188,28 @@ template<class Key,class Data>
 void AVLTree<Key, Data>::removeFromTree(Key key) {
 	if(this->root == nullptr)
 		throw EmptyTree();
-
 }
 
 template<class Key,class Data>
 void RemoveFromTree_Aux(Key key, AVLTree<Key, Data>* root) {
 
+}
+
+template<class Key,class Data>
+void Preorder_aux(AVLTreeNode<Key,Data>* root) {
+	if(root == nullptr)
+		return;
+	std::cout << root->GetKey();
+	Preorder_aux(root->left_node);
+	Preorder_aux(root->right_node);
+}
+
+template<class Key,class Data>
+void Inorder_aux(AVLTreeNode<Key,Data>* root) {
+	if(root == nullptr)
+		return;
+	Inorder_aux(root->left_node);
+	std::cout << root->GetKey();
+	Inorder_aux(root->right_node);
 }
 
