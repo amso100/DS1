@@ -27,12 +27,29 @@ class AVLTreeNode{
 	Key key;
 	Data data;
 	int height;
-	AVLTreeNode* left_node;
-	AVLTreeNode* right_node;
+	AVLTreeNode<Key, Data>* left_node;
+	AVLTreeNode<Key, Data>* right_node;
 public:
+
+	enum RollStatus {
+			RR,
+			RL,
+			LR,
+			LL
+		};
+
 	AVLTreeNode(Data data,Key key);
 	~AVLTreeNode(){};
 	AVLTreeNode(const AVLTreeNode& avl);
+	int GetHeight();
+	bool IsLeaf();
+	void IncHeight();
+	void SubHeight();
+	int BalanceFactor();
+	Key& GetKey();
+	Data& GetData();
+
+	RollStatus GetStatus();
 };
 
 /**
@@ -68,6 +85,9 @@ class AVLTree{
 	void shiftLL(AVLTreeNode<Key,Data>*& node);
 	void shiftRL(AVLTreeNode<Key,Data>*& node);
 	void shiftLR(AVLTreeNode<Key,Data>*& node);
+	void RemoveFromTree_Aux(Key key, AVLTree<Key, Data>* root);
+	void Preorder_aux(AVLTreeNode<Key,Data>* root);
+	void Inorder_aux(AVLTreeNode<Key,Data>* root);
 public:
 	AVLTree();
 	~AVLTree();
@@ -112,6 +132,8 @@ public:
 	void  removeFromTree(Key key);
 	int getNodeBF(Key key);
 	int size();
+	void PrintInorder();
+	void PrintPreorder();
 
 	AVLTree(const AVLTree&)=delete;
 };
@@ -123,10 +145,11 @@ public:
  * 		NotInTree - There does not exist a node with a key (in Deletion or Search)
  * 		EmptyTree - The current tree is empty
  */
-class TreeExceptions: public std::exception{};
-class AlreadyInTree: public TreeExceptions{};
-class NotInTree: public TreeExceptions{};
-class EmptyTree: public TreeExceptions{};
+class TreeExceptions   : public std::exception {};
+class AlreadyInTree    : public TreeExceptions {};
+class NotInTree        : public TreeExceptions {};
+class EmptyTree        : public TreeExceptions {};
+class InvalidHeight    : public TreeExceptions {};
 
 
 

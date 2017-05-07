@@ -7,11 +7,19 @@
 #include "avl_tree.h";
 #include <list>
 ///////////////////Node functions////////////////////////////
+<<<<<<< HEAD
 template<class Key, class Data>
 AVLTreeNode<Key, Data>::AVLTreeNode(Data data, Key key) :
 		data(data), key(key) {
 	left_node = NULL;
 	right_node = NULL;
+=======
+template <class Key,class Data>
+AVLTreeNode<Key,Data>::AVLTreeNode(Data data,Key key): data(data),key(key){
+		left_node=NULL;
+		right_node=NULL;
+		this->height = 0;
+>>>>>>> bceda867e460e1c19f3a7b98012400c1e26ad5df
 }
 
 template<class Key, class Data>
@@ -22,13 +30,64 @@ AVLTreeNode<Key, Data>::AVLTreeNode(const AVLTreeNode& avl) {
 	right_node = new AVLTreeNode*();
 	*left_node = *avl->left_node;
 	*right_node = *avl->right_node;
+	this->height = avl.height;
+}
+
+template <class Key,class Data>
+void AVLTreeNode<Key, Data>::IncHeight() {
+	this->height++;
+}
+
+template <class Key,class Data>
+void AVLTreeNode<Key, Data>::SubHeight() {
+	this->height--;
+}
+
+template <class Key,class Data>
+bool AVLTreeNode<Key, Data>::IsLeaf() {
+	return (this->right_node == nullptr && this->left_node == nullptr);
+}
+
+template <class Key,class Data>
+int AVLTreeNode<Key, Data>::GetHeight() {
+	return this->height;
+}
+
+template <class Key,class Data>
+int AVLTreeNode<Key, Data>::BalanceFactor() {
+	if(this->IsLeaf())
+		return 0;
+	int right_h, left_h;
+	if(this->right_node == nullptr)
+		right_h = 0;
+	else
+		right_h = this->right_node->height;
+	if(this->left_node == nullptr)
+		left_h = 0;
+	else
+		left_h = this->left_node->height;
+	return left_h - right_h;
+}
+
+template <class Key,class Data>
+Key& AVLTreeNode<Key, Data>::GetKey() {
+	return this->key;
+}
+
+template <class Key,class Data>
+Data& AVLTreeNode<Key, Data>::GetData() {
+	return this->data;
+}
+
+template <class Key,class Data>
+RollStatus AVLTreeNode<Key, Data>::GetStatus() {
+	return RL;
 }
 
 /////////// AvlTree functions///////////////////////
-template<class Key, class Data>
-AVLTree<Key, Data>::AVLTree() :
-		numOfNodes(0) {
-	root = NULL;
+template <class Key,class Data>
+AVLTree<Key,Data>::AVLTree():numOfNodes(0){
+	this->root = NULL;
 }
 
 template<class Key, class Data>
@@ -195,5 +254,81 @@ void AVLTree<Key, Data>::handleBF(std::list<AVLTreeNode<Key, Data>*> route,
 		}
 		it--;
 	}
+}
+
+template<class Key,class Data>
+void AVLTree<Key,Data>::shiftRR(AVLTreeNode<Key,Data>* node){
+	if(!node){
+		return;
+	}
+	if(!node->left_node){
+		return;
+	}
+	AVLTreeNode<Key,Data>* temp = new AVLTreeNode<Key,Data>*();
+	*temp = *node->left_node;
+	*node->left_node = *temp->right_node
+	*temp->right_node = *node;
+	delete temp;
+}
+
+template<class Key,class Data>
+void AVLTree<Key,Data>::shiftLL(AVLTreeNode<Key,Data>* node){
+	if(!node){
+		return;
+	}
+	if(!node->right_node){
+		return;
+	}
+	AVLTreeNode<Key,Data>* temp = new AVLTreeNode<Key,Data>*();
+	*temp = *node->right_node;
+	*node->right_node = *temp->left_node
+	*temp->left_node = *node;
+	delete temp;
+}
+
+template<class Key,class Data>
+void AVLTree<Key,Data>::shiftRL(AVLTreeNode<Key,Data>* node){
+	if(!node){
+		return;
+	}
+	if(!node->left_node){
+		return;
+	}
+	shiftRR(node->left_node);
+	shirtLL(node);
+}
+
+template<class Key,class Data>
+void AVLTree<Key,Data>::placeInTree(AVLTreeNode<Key,Data>* node){
+// continue
+}
+
+template<class Key,class Data>
+void AVLTree<Key, Data>::removeFromTree(Key key) {
+	if(this->root == nullptr)
+		throw EmptyTree();
+}
+
+template<class Key,class Data>
+void RemoveFromTree_Aux(Key key, AVLTree<Key, Data>* root) {
+
+}
+
+template<class Key,class Data>
+void Preorder_aux(AVLTreeNode<Key,Data>* root) {
+	if(root == nullptr)
+		return;
+	std::cout << root->GetKey();
+	Preorder_aux(root->left_node);
+	Preorder_aux(root->right_node);
+}
+
+template<class Key,class Data>
+void Inorder_aux(AVLTreeNode<Key,Data>* root) {
+	if(root == nullptr)
+		return;
+	Inorder_aux(root->left_node);
+	std::cout << root->GetKey();
+	Inorder_aux(root->right_node);
 }
 
