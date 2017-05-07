@@ -24,16 +24,19 @@ template <class Key,class Data>
 class AVLTreeNode{
 	Key key;
 	Data data;
-	int balanceFactor;
-	AVLTreeNode* left_node;
-	AVLTreeNode* right_node;
+	int height;
+	AVLTreeNode<Key, Data>* left_node;
+	AVLTreeNode<Key, Data>* right_node;
 public:
 	AVLTreeNode(Data data,Key key);
 	~AVLTreeNode(){};
 	AVLTreeNode(const AVLTreeNode& avl);
-	int getBF(){
-		return this->balanceFactor;
-	}
+	int GetHeight();
+	bool IsLeaf();
+	void UpdateHeight(int new_h);
+	int BalanceFactor();
+	Key& GetKey();
+	Data& GetData();
 };
 
 /**
@@ -67,6 +70,7 @@ class AVLTree{
 	void shiftRR(AVLTreeNode<Key,Data>* node);
 	void shiftLL(AVLTreeNode<Key,Data>* node);
 	void shiftRL(AVLTreeNode<Key,Data>* node);
+	void RemoveFromTree_Aux(Key key, AVLTree<Key, Data>* root);
 public:
 	AVLTree();
 	~AVLTree();
@@ -122,10 +126,11 @@ public:
  * 		NotInTree - There does not exist a node with a key (in Deletion or Search)
  * 		EmptyTree - The current tree is empty
  */
-class TreeExceptions: public std::exception{};
-class AlreadyInTree: public TreeExceptions{};
-class NotInTree: public TreeExceptions{};
-class EmptyTree: public TreeExceptions{};
+class TreeExceptions   : public std::exception {};
+class AlreadyInTree    : public TreeExceptions {};
+class NotInTree        : public TreeExceptions {};
+class EmptyTree        : public TreeExceptions {};
+class InvalidHeight    : public TreeExceptions {};
 
 
 
