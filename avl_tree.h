@@ -9,6 +9,7 @@
 #define AVL_TREE_H_
 
 #include <iostream>
+#include "List.h"
 
 enum RollStatus{ LR,RR,LL,RL,OK };
 enum TreeStatus{ Add,Remove};
@@ -75,12 +76,12 @@ public:
 template<class Key,class Data>
 class AVLTree{
 	int numOfNodes;
-	AVLTreeNode* root;
+	AVLTreeNode<Key, Data>* root;
 
-	void deleteTree(AVLTreeNode<Key,Data>* root);
-	Data& findCurrentNode(AVLTreeNode<Key,Data>* node,Key key);
-	void placeInTree(Key key,Data data,std::list<AVLTreeNode<Key,Data>>);
-	void handleBF(std::list<AVLTreeNode<Key,Data>*> route,TreeStatus status);
+	void deleteTree(AVLTreeNode<Key, Data>* root);
+	Data& findCurrentNode(AVLTreeNode<Key, Data>* node,Key key);
+	void placeInTree(Key key, Data data, List<AVLTreeNode<Key,Data>>);
+	void handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus status);
 	void shiftRR(AVLTreeNode<Key,Data>*& node);
 	void shiftLL(AVLTreeNode<Key,Data>*& node);
 	void shiftRL(AVLTreeNode<Key,Data>*& node);

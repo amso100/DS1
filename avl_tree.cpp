@@ -4,22 +4,15 @@
  *  Created on: Apr 29, 2017
  *      Author: leschnitzky
  */
-#include "avl_tree.h";
-#include <list>
+#include "avl_tree.h"
+#include "List.h"
+
 ///////////////////Node functions////////////////////////////
-<<<<<<< HEAD
-template<class Key, class Data>
-AVLTreeNode<Key, Data>::AVLTreeNode(Data data, Key key) :
-		data(data), key(key) {
-	left_node = NULL;
-	right_node = NULL;
-=======
 template <class Key,class Data>
 AVLTreeNode<Key,Data>::AVLTreeNode(Data data,Key key): data(data),key(key){
 		left_node=NULL;
 		right_node=NULL;
 		this->height = 0;
->>>>>>> bceda867e460e1c19f3a7b98012400c1e26ad5df
 }
 
 template<class Key, class Data>
@@ -80,7 +73,7 @@ Data& AVLTreeNode<Key, Data>::GetData() {
 }
 
 template <class Key,class Data>
-RollStatus AVLTreeNode<Key, Data>::GetStatus() {
+typename AVLTreeNode<Key, Data>::RollStatus AVLTreeNode<Key, Data>::GetStatus() {
 	return RL;
 }
 
@@ -223,19 +216,18 @@ void AVLTree<Key, Data>::placeInTree(Key key, Data data,
 }
 
 template<class Key, class Data>
-void AVLTree<Key, Data>::handleBF(std::list<AVLTreeNode<Key, Data>*> route,
-		TreeStatus status) {
-	std::list<AVLTreeNode<Key, Data>*>::iterator it = route.end();
+void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key, Data>*>& route, TreeStatus status) {
+	List<AVLTreeNode<Key, Data>*>::Iterator it(route, false);
 	while (route.size() != 0) {
 		switch (status) {
 		case Add:
-			*(*it)->incHeight();
+			*it->IncHeight();
 			break;
 		case Remove:
-			*(*it)->subHeight();
+			(*it)->SubHeight();
 			break;
 		}
-		RollStatus res = *(*it).checkBF();
+		AVLTreeNode<Key, Data>::RollStatus res = (*it)->GetStatus();
 		switch (res) {
 		case (RL):						// Continue from here
 			shiftRL(*it);
@@ -252,12 +244,12 @@ void AVLTree<Key, Data>::handleBF(std::list<AVLTreeNode<Key, Data>*> route,
 		case (OK):
 			break;
 		}
-		it--;
+		it.Prev();
 	}
 }
 
 template<class Key,class Data>
-void AVLTree<Key,Data>::shiftRR(AVLTreeNode<Key,Data>* node){
+void AVLTree<Key,Data>::shiftRR(AVLTreeNode<Key,Data>*& node){
 	if(!node){
 		return;
 	}
@@ -272,7 +264,7 @@ void AVLTree<Key,Data>::shiftRR(AVLTreeNode<Key,Data>* node){
 }
 
 template<class Key,class Data>
-void AVLTree<Key,Data>::shiftLL(AVLTreeNode<Key,Data>* node){
+void AVLTree<Key,Data>::shiftLL(AVLTreeNode<Key,Data>*& node){
 	if(!node){
 		return;
 	}
@@ -287,7 +279,7 @@ void AVLTree<Key,Data>::shiftLL(AVLTreeNode<Key,Data>* node){
 }
 
 template<class Key,class Data>
-void AVLTree<Key,Data>::shiftRL(AVLTreeNode<Key,Data>* node){
+void AVLTree<Key,Data>::shiftRL(AVLTreeNode<Key,Data>*& node){
 	if(!node){
 		return;
 	}
@@ -296,11 +288,6 @@ void AVLTree<Key,Data>::shiftRL(AVLTreeNode<Key,Data>* node){
 	}
 	shiftRR(node->left_node);
 	shirtLL(node);
-}
-
-template<class Key,class Data>
-void AVLTree<Key,Data>::placeInTree(AVLTreeNode<Key,Data>* node){
-// continue
 }
 
 template<class Key,class Data>

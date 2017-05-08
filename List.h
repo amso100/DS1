@@ -65,15 +65,15 @@ public:
 	class Iterator {
 	private:
 		Node* cur_node; //The current node the iterator is at.
-		List* cur_list; //The current list of iteration.
+		List& cur_list; //The current list of iteration.
 	public:
 
 		//Creates a new iterator at the start/end of the list.
-		Iterator(List<Data>* list, bool start) : cur_list(list) {
+		Iterator(List<Data>& list, bool start) : cur_list(list) {
 			if(start)
-				this->cur_node = list->first;
+				this->cur_node = cur_list.first;
 			else
-				this->cur_node = list->last;
+				this->cur_node = cur_list.last;
 		}
 
 		//Destroys the given iterator.
@@ -132,6 +132,23 @@ public:
 			this->last = insert;
 		}
 		this->count++;
+	}
+
+	void RemoveLast() {
+		if(this->last == nullptr)
+			return;
+		else if(this->last == this->first) {
+			delete this->first;
+			this->first  = nullptr;
+			this->last   = nullptr;
+		}
+		else {
+			Node* temp = this->last;
+			this->last = this->last->GetPrev();
+			this->last->SetNext(nullptr);
+			delete temp;
+		}
+		this->count--;
 	}
 
 	//Prints the list in regular order.

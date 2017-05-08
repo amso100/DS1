@@ -23,7 +23,7 @@ int main() {
 	std::cout << "\n\n";
 
 	std::cout << "Testing iterator forward...\n";
-	List<std::string>::Iterator iter(&test, true);
+	List<std::string>::Iterator iter(test, true);
 	try {
 		while(true) {
 			std::cout << *iter << "\n";
@@ -34,7 +34,7 @@ int main() {
 	}
 	std::cout << "Finished test forward.\n";
 	std::cout << "Testing iterator backwards...\n";
-	List<std::string>::Iterator iter2(&test, false);
+	List<std::string>::Iterator iter2(test, false);
 	try {
 		while(true) {
 			std::cout << *iter2 << "\n";
@@ -46,4 +46,10 @@ int main() {
 
 	std::cout << "Printing list in reverse...\n";
 	test.PrintReverse();
+
+	std::cout << "Removing last twice...\n";
+	test.RemoveLast();
+	test.RemoveLast();
+	List<std::string>::Iterator iter3(test, false);
+	std::cout << "Last object in list is: " << *iter3 << "\n";
 }
