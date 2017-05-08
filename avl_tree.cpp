@@ -74,7 +74,19 @@ Data& AVLTreeNode<Key, Data>::GetData() {
 
 template <class Key,class Data>
 typename AVLTreeNode<Key, Data>::RollStatus AVLTreeNode<Key, Data>::GetStatus() {
-	return RL;
+	if(this->BalanceFactor()==2){
+		if(this->left_node->BalanceFactor() >= 0){
+			return LL;
+		}
+		return LR;
+	}
+	if(this->BalanceFactor()==-2){
+		if(this->left_node->BalanceFactor() <= 0){
+			return RR;
+		}
+		return RL;
+	}
+	return OK;
 }
 
 /////////// AvlTree functions///////////////////////
@@ -94,8 +106,8 @@ void AVLTree<Key, Data>::deleteTree(AVLTreeNode<Key, Data>* root) {
 	if (!root) {
 		return;
 	}
-	deleteTree(root->left_node);
-	deleteTree(root->right_node);
+	deleteTree(root->GetLeft());
+	deleteTree(root->GetRight());
 	delete root;
 }
 
@@ -103,41 +115,55 @@ template<class Key, class Data>
 void AVLTree<Key, Data>::insertToTree(Key key, Data data) {
 
 	List<AVLTreeNode<Key, Data>> route;
-	AVLTreeNode<Key, Data>* node = root;									//Create a node iterator
+	AVLTreeNode<Key, Data>* node = root;										//Create a node iterator
 		while (!node) {															//Travel-tree loop
 			route.PushBack(node);												//Add the route to the list
-			if (key == *node->key) {
+			if (key == node->GetKey()) {
 				throw AlreadyInTree();											//The node is already in
 			}
-			if (key < *node->key) {												//If key lower, go left
-				if (!node->left_node) {
-					if (node->isLeaf()) {
-						node->left_node = new AVLTreeNode<Key, Data>(key, data); //No more left, create a new node
+			if (node->GetKey() < key) {												//If key lower, go left
+				if (!node->GetLeft()) {
+					if (node->IsLeaf()) {
+						node->SetLeft(new AVLTreeNode<Key,Data>(key, data)); 					//No more left, create a new node
 						handleBF(route, true);
 						break;
 					}
-					node->left_node = new AVLTreeNode<Key, Data>(key, data);
+					node->SetLeft(new AVLTreeNode<Key,Data>(key, data));
 					break;
 				}
-				node = node->left_node;
+				node = node->GetLeft();
 				continue;
 			}
-			if (!node->right_node) {
+			if (!node->GetRight()) {
 				if (node->isLeaf()) {
-					node->right_node = new AVLTreeNode<Key, Data>(key, data); //No more left, create a new node
+					node->SetRight(new AVLTreeNode<Key,Data>(key, data)); 										//No more left, create a new node
 					handleBF(route, Add);
 					break;
 				}
-				node->right_node = new AVLTreeNode<Key, Data>(key, data);
+				node->SetRight(new AVLTreeNode<Key,Data>(key, data));
 				break;
 			}
-			node = node->right_node;
+			node = node->GetRight();
 		}
 
 }
 
 template<class Key, class Data>
+void AVLTree<Key,Data>::removeNode(AVLTreeNode<Key,Data>* father,bool cond_right){
+	if(cond_right){
+		if(father->GetRight()->IsLeaf()){
+			delete father->GetRight();
+			father->SetRight(nullptr);
+		}
+		if(father->)
+	}
+}
+
+template<class Key, class Data>
 void AVLTree<Key, Data>::removeFromTree(Key key) {
+	if(size()==0){
+		throw EmptyTree();
+	}
 	bool cond_right;
 	List<AVLTreeNode<Key,Data>*> route;
 	AVLTreeNode<Key,Data> node = root;
@@ -156,27 +182,26 @@ void AVLTree<Key, Data>::removeFromTree(Key key) {
 			return;
 		}
 		if(node.GetKey() < key){
-			node = node->left_node;
+			node = node->GetLeft();
 			continue;
 		}
-
-
-
+		node = node->GetRight();
 	}
+	throw NotInTree();
 }
 
 template<class Key, class Data>
 Data& AVLTree<Key, Data>::findCurrentNode(AVLTreeNode<Key, Data>* node,
 		Key key) {
-	if (node->key == key)
+	if (node->GetKey() == key)
 		return node->data;
-	if (!node->left_node && !node->right_node) {
+	if (!node->GetLeft() && !node->GetRight()) {
 		throw NotInTree();
 	}
-	if (node->key > key) {
-		return findCurrentNode(node->right_node, key);
+	if (node->GetKey() > key) {
+		return findCurrentNode(node->GetRight(), key);
 	}
-	return findCurrentNode(node->left_node, key);
+	return findCurrentNode(node->GetLeft(), key);
 }
 
 template<class Key, class Data>
@@ -184,11 +209,7 @@ Data& AVLTree<Key, Data>::findInTree(Key key_tofind) {
 	if (!root) {
 		throw EmptyTree();
 	}
-	try {
-		return this->findCurrentNode(root, key_tofind);
-	} catch (NotInTree&) {
-		throw NotInTree();
-	}
+	return this->findCurrentNode(root, key_tofind);
 
 }
 
@@ -197,11 +218,11 @@ void AVLTree<Key, Data>::shiftRR(AVLTreeNode<Key, Data>*& node) {
 	if (!node) {
 		return;
 	}
-	if (!node->left_node) {
+	if (!node->GetLeft()) {
 		return;
 	}
-	AVLTreeNode<Key, Data>* temp = *node->left_node;
-	*node->left_node = *temp->right_node
+	AVLTreeNode<Key, Data>* temp = *node->GetLeft();
+	node->SetLeft(temp->GetRight());
 	*temp->right_node = *node;
 }
 
@@ -276,20 +297,20 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key, Data>*>& route, TreeStat
 }
 
 template<class Key,class Data>
-void Preorder_aux(AVLTreeNode<Key,Data>* root) {
+void AVLTree<Key,Data>::Preorder_aux(AVLTreeNode<Key,Data>* root) {
 	if(root == nullptr)
 		return;
 	std::cout << root->GetKey();
-	Preorder_aux(root->left_node);
-	Preorder_aux(root->right_node);
+	Preorder_aux(root->GetLeft());
+	Preorder_aux(root->GetRight());
 }
 
 template<class Key,class Data>
-void Inorder_aux(AVLTreeNode<Key,Data>* root) {
+void AVLTree<Key,Data>::Inorder_aux(AVLTreeNode<Key,Data>* root) {
 	if(root == nullptr)
 		return;
-	Inorder_aux(root->left_node);
+	Inorder_aux(root->GetLeft());
 	std::cout << root->GetKey();
-	Inorder_aux(root->right_node);
+	Inorder_aux(root->GetRight());
 }
 

@@ -36,7 +36,8 @@ public:
 			RR,
 			RL,
 			LR,
-			LL
+			LL,
+			OK
 		};
 
 	AVLTreeNode(Data data,Key key);
