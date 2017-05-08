@@ -4,8 +4,9 @@
  *  Created on: Apr 29, 2017
  *      Author: leschnitzky
  */
-#include "avl_tree.h";
+#include "avl_tree.h"
 #include "List.h"
+
 ///////////////////Node functions////////////////////////////
 template <class Key,class Data>
 AVLTreeNode<Key,Data>::AVLTreeNode(Data data,Key key): data(data),key(key){
@@ -72,7 +73,7 @@ Data& AVLTreeNode<Key, Data>::GetData() {
 }
 
 template <class Key,class Data>
-AVLTreeNode<Key, Data>::RollStatus GetStatus(){
+typename AVLTreeNode<Key, Data>::RollStatus AVLTreeNode<Key, Data>::GetStatus() {
 	return RL;
 }
 
@@ -100,6 +101,7 @@ void AVLTree<Key, Data>::deleteTree(AVLTreeNode<Key, Data>* root) {
 
 template<class Key, class Data>
 void AVLTree<Key, Data>::insertToTree(Key key, Data data) {
+
 	List<AVLTreeNode<Key, Data>> route;
 	AVLTreeNode<Key, Data>* node = root;									//Create a node iterator
 		while (!node) {															//Travel-tree loop
@@ -133,6 +135,7 @@ void AVLTree<Key, Data>::insertToTree(Key key, Data data) {
 		}
 
 }
+
 template<class Key, class Data>
 void AVLTree<Key, Data>::removeFromTree(Key key) {
 	bool cond_right;
@@ -140,14 +143,24 @@ void AVLTree<Key, Data>::removeFromTree(Key key) {
 	AVLTreeNode<Key,Data> node = root;
 	while(!node){
 		route.PushBack(node);
-		if(node.key == key){
+		if(node.GetKey() == key){
 			if(node == root){
-				removeRoot();
+				removeRoot(route);
+				handleBF(route,Remove);
+				return;
 			}
 			route.RemoveLast();
 			List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
 			removeNode(*it,cond_right);
+			handleBF(route,Remove);
+			return;
 		}
+		if(node.GetKey() < key){
+			node = node->left_node;
+			continue;
+		}
+
+
 
 	}
 }
@@ -230,8 +243,7 @@ void AVLTree<Key, Data>::shiftLR(AVLTreeNode<Key, Data>*& node) {
 }
 
 template<class Key, class Data>
-void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key, Data>*> route,
-		TreeStatus status) {
+void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key, Data>*>& route, TreeStatus status) {
 	List<AVLTreeNode<Key, Data>*>::Iterator it = route.end();
 	while (route.size() != 0) {
 		switch (status) {
@@ -242,7 +254,7 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key, Data>*> route,
 			(*it)->SubHeight();
 			break;
 		}
-		RollStatus res = (*it).GetStatus();
+		AVLTreeNode<Key, Data>::RollStatus res = (*it)->GetStatus();
 		switch (res) {
 		case (RL):						// Continue from here
 			shiftRL(*it);
@@ -259,7 +271,7 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key, Data>*> route,
 		case (OK):
 			break;
 		}
-		it--;
+		it.Prev();
 	}
 }
 
