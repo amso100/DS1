@@ -42,6 +42,16 @@ bool AVLTreeNode<Key, Data>::IsLeaf() {
 }
 
 template <class Key,class Data>
+AVLTreeNode<Key, Data>* AVLTreeNode<Key, Data>::GetLeft() {
+	return this->left_node;
+}
+
+template <class Key,class Data>
+AVLTreeNode<Key, Data>* AVLTreeNode<Key, Data>::GetRight() {
+	return this->right_node;
+}
+
+template <class Key,class Data>
 int AVLTreeNode<Key, Data>::GetHeight() {
 	return this->height;
 }
@@ -98,7 +108,7 @@ AVLTree<Key,Data>::AVLTree():numOfNodes(0){
 template<class Key, class Data>
 AVLTree<Key, Data>::~AVLTree() {
 	deleteTree(this->root);
-	root = NULL;
+	this->root = NULL;
 }
 
 template<class Key, class Data>
@@ -264,8 +274,8 @@ void AVLTree<Key, Data>::shiftLR(AVLTreeNode<Key, Data>*& node) {
 }
 
 template<class Key, class Data>
-void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key, Data>*>& route, TreeStatus status) {
-	List<AVLTreeNode<Key, Data>*>::Iterator it = route.end();
+void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus status) {
+	List<AVLTreeNode<Key, Data>*>::Iterator it(route, false);
 	while (route.size() != 0) {
 		switch (status) {
 		case Add:
@@ -274,7 +284,7 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key, Data>*>& route, TreeStat
 		case Remove:
 			(*it)->SubHeight();
 			break;
-		}
+		};
 		AVLTreeNode<Key, Data>::RollStatus res = (*it)->GetStatus();
 		switch (res) {
 		case (RL):						// Continue from here

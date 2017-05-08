@@ -45,6 +45,10 @@ public:
 	AVLTreeNode(const AVLTreeNode& avl);
 	int GetHeight();
 	bool IsLeaf();
+	AVLTreeNode<Key, Data>* GetLeft();
+	AVLTreeNode<Key, Data>* GetRight();
+	void SetLeft(AVLTreeNode<Key, Data>* left);
+	void SetRight();
 	void IncHeight();
 	void SubHeight();
 	int BalanceFactor();
