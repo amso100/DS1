@@ -60,6 +60,20 @@ void AVLTreeNode<Key, Data>::SetRight(AVLTreeNode<Key, Data>* right) {
 }
 
 template <class Key,class Data>
+int AVLTreeNode<Key, Data>::NumOfSons() {
+	if(this->IsLeaf()){
+		return 0;
+	}
+	if(this->right_node != nullptr){
+		if(this->left_node != nullptr){
+			return 2;
+		}
+		return 1;
+	}
+	return 1;
+}
+
+template <class Key,class Data>
 int AVLTreeNode<Key, Data>::GetHeight() {
 	return this->height;
 }
@@ -167,43 +181,162 @@ void AVLTree<Key, Data>::insertToTree(Key key, Data data) {
 }
 
 template<class Key, class Data>
-void AVLTree<Key,Data>::removeNode(AVLTreeNode<Key,Data>* father,bool cond_right){
-//	if(cond_right){
-//		if(father->GetRight()->IsLeaf()){
-//			delete father->GetRight();
-//			father->SetRight(nullptr);
-//		}
-//		if(father->)
-//	}
+void AVLTree<Key,Data>::removeRoot(List<AVLTreeNode<Key,Data>*> route){
+	if(this->root->IsLeaf()){									// If the root is a leaf, delete it!
+		delete root;
+		root=nullptr;
+	}
+	AVLTreeNode<Key,Data>* temp = root;							//If the root has 1 son, it's either the root and the right
+	if(this->root->NumOfSons()==1){								//or the root and the left, replace and delete
+		if(root->GetRight() == nullptr){
+			temp = temp->GetLeft();
+			delete root;
+			root = temp;
+		}
+		temp = temp->GetRight();
+		delete root;
+		root = temp;
+	}
+	route.PushBack(temp);										//If the root has 2 sons, we'll pick the left son, travel the farthest
+	temp = temp->GetRight();									//right, switch between the nodes, and delete the leaf.
+	route.PushBack(temp);
+	while(temp->GetLeft()!=nullptr){
+		temp = temp->GetLeft();
+		route.PushBack(temp);
+	}
+	route.RemoveLast();
+	*(root) = *temp;
+	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
+	delete temp;
+	(*it)->SetRight(nullptr);
+}
+
+template<class Key, class Data>
+void AVLTree<Key,Data>::removeRightLeaf(AVLTreeNode<Key,Data>* father){
+	delete father->GetRight();									//If it's a leaf, simply delete him
+	father->SetRight(nullptr);
+	return;
+}
+
+template<class Key, class Data>
+void AVLTree<Key,Data>::removeLeftLeaf(AVLTreeNode<Key,Data>* father){
+	delete father->GetLeft();
+	father->SetLeft(nullptr);
+	return;
+}
+
+template<class Key, class Data>
+void AVLTree<Key,Data>::removeRightOneSon(AVLTreeNode<Key,Data>* father){
+	AVLTreeNode<Key,Data>* temp = father->GetRight();			//If the node has one leaf, we connect the father to it's sub-tree
+	if(temp->GetRight() == nullptr){							//and delete the node
+		father->SetRight(temp->GetLeft());
+		delete temp;
+		return;
+	}
+	father->SetRight(temp->GetRight());
+	delete temp;
+	return;
+}
+
+template<class Key, class Data>
+void AVLTree<Key,Data>::removeLeftOneSon(AVLTreeNode<Key,Data>* father){
+	AVLTreeNode<Key,Data>* temp = father->GetLeft();
+	if(temp->GetRight() == nullptr){
+		father->SetLeft(temp->GetLeft());
+		delete temp;
+		return;
+	}
+	father->SetLeft(temp->GetRight());
+	delete temp;
+	return;
+}
+
+template<class Key, class Data>
+void AVLTree<Key,Data>::removeRightTwoSons(AVLTreeNode<Key,Data>* father,List<AVLTreeNode<Key,Data>*>& route){
+	AVLTreeNode<Key,Data>* temp = father->GetRight();			//If the node has 2 sons we track for the next value in key, switch the nodes
+	route.PushBack(temp);										//and remove the leaf at the end
+	AVLTreeNode<Key,Data>* next = temp->GetLeft();				//Must contain left, because 2 sons
+	route.PushBack(next);
+	while (next->GetRight() != nullptr){
+		next = next->GetRight();
+		route.PushBack(next);
+	}
+	route.RemoveLast();
+	*temp = *(next);
+	delete next;
+	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);		//The last node before the leaf.
+	(*it)->SetRight(nullptr);
+}
+
+template<class Key, class Data>
+void AVLTree<Key,Data>::removeLeftTwoSons(AVLTreeNode<Key,Data>* father,List<AVLTreeNode<Key,Data>*>& route){
+	AVLTreeNode<Key,Data>* temp = father->GetLeft();			//Saves the pointer to switch with next
+	route.PushBack(temp);
+	AVLTreeNode<Key,Data>* next = temp->GetRight();				//Must contain left, because 2 sons
+	route.PushBack(next);
+	while (next->GetLeft() != nullptr){
+		next = next->GetLeft();
+		route.PushBack(next);
+	}
+	route.RemoveLast();
+	*temp = *next;
+	delete next;
+	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
+	(*it)->SetRight(nullptr);
+}
+
+
+
+template<class Key, class Data>
+void AVLTree<Key,Data>::removeNode(AVLTreeNode<Key,Data>* father,bool cond_right,List<AVLTreeNode<Key,Data>*>& route){
+	if(cond_right){												//Check if the node we need to remove is left or right from the father
+		if(father->GetRight()->IsLeaf()){
+			removeRightLeaf(father);
+		}
+		if(father->GetRight()->NumOfSons() == 1){
+			removeRightOneSon(father);
+		}
+		removeRightTwoSons(father,route);
+	}
+	if(father->GetLeft()->IsLeaf()){
+		removeLeftLeaf(father);
+	}
+	if(father->GetLeft()->NumOfSons() == 1){
+		removeLeftOneSon(father);
+	}
+	removeRightTwoSons(father,route);
 }
 
 template<class Key, class Data>
 void AVLTree<Key, Data>::removeFromTree(Key key) {
-	if(size()==0){
+	if(size()==0){												//If the tree is empty, nothing to remove
 		throw EmptyTree();
 	}
-	bool cond_right;
-	List<AVLTreeNode<Key,Data>*> route;
-	AVLTreeNode<Key,Data> node = root;
+	bool cond_right;											//A variable to check which node to remove, left or right
+	List<AVLTreeNode<Key,Data>*> route;							//A list of the route to track which nodes we visited
+	AVLTreeNode<Key,Data>* node = root;
 	while(!node){
 		route.PushBack(node);
-		if(node.GetKey() == key){
-			if(node == root){
+		if(node->GetKey() == key){
+			if(*node == (root)){
+				route.RemoveLast();
 				removeRoot(route);
 				handleBF(route,Remove);
 				return;
 			}
 			route.RemoveLast();
-			typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
-			removeNode(*it,cond_right);
+			List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
+			removeNode(*it,cond_right,route);
 			handleBF(route,Remove);
 			return;
 		}
-		if(node.GetKey() < key){
+		if(node->GetKey() < key){
 			node = node->GetLeft();
+			cond_right=false;
 			continue;
 		}
 		node = node->GetRight();
+		cond_right=true;
 	}
 	throw NotInTree();
 }

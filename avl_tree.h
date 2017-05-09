@@ -49,6 +49,7 @@ public:
 	AVLTreeNode<Key, Data>* GetRight();  //
 	void SetLeft(AVLTreeNode<Key, Data>* left);   //
 	void SetRight(AVLTreeNode<Key, Data>* right); //
+	int NumOfSons();					 //
 	void IncHeight();                    //
 	void SubHeight();                    //
 	int BalanceFactor();                 //
@@ -88,7 +89,13 @@ class AVLTree{
 	void deleteTree(AVLTreeNode<Key,Data>* root);
 	Data& findCurrentNode(AVLTreeNode<Key,Data>* node,Key key);
 	void removeRoot(List<AVLTreeNode<Key,Data>*> route);
-	void removeNode(AVLTreeNode<Key,Data>* father,bool cond_right);
+	void removeNode(AVLTreeNode<Key,Data>* father,bool cond_right,List<AVLTreeNode<Key,Data>*>& route);
+	void removeRightLeaf(AVLTreeNode<Key,Data>* father);
+	void removeRightOneSon(AVLTreeNode<Key,Data>* father);
+	void removeRightTwoSons(AVLTreeNode<Key,Data>* father,List<AVLTreeNode<Key,Data>*>& route);
+	void removeLeftLeaf(AVLTreeNode<Key,Data>* father);
+	void removeLeftOneSon(AVLTreeNode<Key,Data>* father);
+	void removeLeftTwoSons(AVLTreeNode<Key,Data>* father,List<AVLTreeNode<Key,Data>*>& route);
 	void handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus status);
 	void shiftRR(AVLTreeNode<Key,Data>*& node);
 	void shiftLL(AVLTreeNode<Key,Data>*& node);
