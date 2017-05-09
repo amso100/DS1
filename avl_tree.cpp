@@ -16,14 +16,12 @@ AVLTreeNode<Key,Data>::AVLTreeNode(Data data,Key key): data(data),key(key){
 }
 
 template<class Key, class Data>
-AVLTreeNode<Key, Data>::AVLTreeNode(const AVLTreeNode& avl) {
-	this->data = avl.data;
-	this->key = avl.key;
-	left_node = new AVLTreeNode*();
-	right_node = new AVLTreeNode*();
-	*left_node = *avl->left_node;
-	*right_node = *avl->right_node;
-	this->height = avl.height;
+AVLTreeNode<Key, Data>::AVLTreeNode(const AVLTreeNode<Key, Data>& avl) {
+	this->data        = avl.data;
+	this->key         = avl.key;
+	this->left_node   = avl.left_node;
+	this->right_node  = avl.right_node;
+	this->height      = avl.height;
 }
 
 template <class Key,class Data>
@@ -49,6 +47,16 @@ AVLTreeNode<Key, Data>* AVLTreeNode<Key, Data>::GetLeft() {
 template <class Key,class Data>
 AVLTreeNode<Key, Data>* AVLTreeNode<Key, Data>::GetRight() {
 	return this->right_node;
+}
+
+template <class Key,class Data>
+void AVLTreeNode<Key, Data>::SetLeft(AVLTreeNode<Key, Data>* left) {
+	this->left_node = left;
+}
+
+template <class Key,class Data>
+void AVLTreeNode<Key, Data>::SetRight(AVLTreeNode<Key, Data>* right) {
+	this->right_node = right;
 }
 
 template <class Key,class Data>
@@ -160,13 +168,13 @@ void AVLTree<Key, Data>::insertToTree(Key key, Data data) {
 
 template<class Key, class Data>
 void AVLTree<Key,Data>::removeNode(AVLTreeNode<Key,Data>* father,bool cond_right){
-	if(cond_right){
-		if(father->GetRight()->IsLeaf()){
-			delete father->GetRight();
-			father->SetRight(nullptr);
-		}
-		if(father->)
-	}
+//	if(cond_right){
+//		if(father->GetRight()->IsLeaf()){
+//			delete father->GetRight();
+//			father->SetRight(nullptr);
+//		}
+//		if(father->)
+//	}
 }
 
 template<class Key, class Data>
@@ -186,7 +194,7 @@ void AVLTree<Key, Data>::removeFromTree(Key key) {
 				return;
 			}
 			route.RemoveLast();
-			List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
+			typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
 			removeNode(*it,cond_right);
 			handleBF(route,Remove);
 			return;
@@ -224,29 +232,38 @@ Data& AVLTree<Key, Data>::findInTree(Key key_tofind) {
 }
 
 template<class Key, class Data>
-void AVLTree<Key, Data>::shiftRR(AVLTreeNode<Key, Data>*& node) {
+void AVLTree<Key, Data>::shiftLL(AVLTreeNode<Key, Data>*& node) {
 	if (!node) {
 		return;
 	}
 	if (!node->GetLeft()) {
 		return;
 	}
-	AVLTreeNode<Key, Data>* temp = *node->GetLeft();
+	AVLTreeNode<Key, Data>* temp = node->GetLeft();
+
+	node->SubHeight();
+	temp->IncHeight();
+
 	node->SetLeft(temp->GetRight());
 	*temp->right_node = *node;
 }
 
 template<class Key, class Data>
-void AVLTree<Key, Data>::shiftLL(AVLTreeNode<Key, Data>*& node) {
+void AVLTree<Key, Data>::shiftRR(AVLTreeNode<Key, Data>*& node) {
 	if (!node) {
 		return;
 	}
 	if (!node->right_node) {
 		return;
 	}
-	AVLTreeNode<Key, Data>* temp = *node->right_node;
-	*node->right_node = *temp->left_node;
-	temp->left_node = *node;
+
+	AVLTreeNode<Key, Data>* temp = node->right_node;
+
+	node->SubHeight();
+	temp->IncHeight();
+
+	node->right_node = temp->left_node;
+	temp->left_node = node;
 }
 
 template<class Key, class Data>
@@ -275,7 +292,7 @@ void AVLTree<Key, Data>::shiftLR(AVLTreeNode<Key, Data>*& node) {
 
 template<class Key, class Data>
 void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus status) {
-	List<AVLTreeNode<Key, Data>*>::Iterator it(route, false);
+	typename List<AVLTreeNode<Key, Data>*>::Iterator it(route, false);
 	while (route.size() != 0) {
 		switch (status) {
 		case Add:
@@ -285,7 +302,7 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus
 			(*it)->SubHeight();
 			break;
 		};
-		AVLTreeNode<Key, Data>::RollStatus res = (*it)->GetStatus();
+		typename AVLTreeNode<Key, Data>::RollStatus res = (*it)->GetStatus();
 		switch (res) {
 		case (RL):						// Continue from here
 			shiftRL(*it);

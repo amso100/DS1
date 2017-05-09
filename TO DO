@@ -1,9 +1,4 @@
 TODO:
 
-- Finish Node functions (Amit)
-- Add handling height changes in rolled nodes (Sergei)
-- Add height updating in handleBF when going up. (Amit)
-- Add function RemoveRoot (Think later)
-- Finish RemoveNode (Sergei)
 - Write Tests (Amit)
 - Actually use the tests you wrote

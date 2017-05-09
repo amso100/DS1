@@ -40,22 +40,22 @@ public:
 			OK
 		};
 
-	AVLTreeNode(Data data,Key key);
-	~AVLTreeNode(){};
-	AVLTreeNode(const AVLTreeNode& avl);
-	int GetHeight();
-	bool IsLeaf();
-	AVLTreeNode<Key, Data>* GetLeft();
-	AVLTreeNode<Key, Data>* GetRight();
-	void SetLeft(AVLTreeNode<Key, Data>* left);
-	void SetRight();
-	void IncHeight();
-	void SubHeight();
-	int BalanceFactor();
-	Key& GetKey();
-	Data& GetData();
+	AVLTreeNode(Data data,Key key);      //
+	~AVLTreeNode(){};                    //
+	AVLTreeNode(const AVLTreeNode& avl); //
+	int GetHeight();                     //
+	bool IsLeaf();                       //
+	AVLTreeNode<Key, Data>* GetLeft();   //
+	AVLTreeNode<Key, Data>* GetRight();  //
+	void SetLeft(AVLTreeNode<Key, Data>* left);   //
+	void SetRight(AVLTreeNode<Key, Data>* right); //
+	void IncHeight();                    //
+	void SubHeight();                    //
+	int BalanceFactor();                 //
+	Key& GetKey();                       //
+	Data& GetData();                     //
 
-	RollStatus GetStatus();
+	RollStatus GetStatus();              //
 };
 
 /**
@@ -83,7 +83,7 @@ class AVLTree{
 	int numOfNodes;
 
 
-	AVLTreeNode* root;
+	AVLTreeNode<Key, Data>* root;
 
 	void deleteTree(AVLTreeNode<Key,Data>* root);
 	Data& findCurrentNode(AVLTreeNode<Key,Data>* node,Key key);
