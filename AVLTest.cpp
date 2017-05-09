@@ -34,9 +34,19 @@ int main() {
 	try {
 		while(true) {
 			std::cout << "Inserting: Key = " << *keys_iter << "\tData = " << *data_iter << std::endl;
-
+			tree.insertToTree(*keys_iter, *data_iter);
+			std::cout << "Number of elements in tree: " << tree.size();
+			tree.PrintInorder();
+			tree.PrintPreorder();
 		}
 	} catch(IteratorAtEnd& e) {
 		std::cout << "\nFinished Insertion\n";
+	}
+
+	try {
+		tree.insertToTree(1, "str1");
+		std::cout << "\n BAD!!!!!!!! \n";
+	} catch(AlreadyInTree& e) {
+		std::cout << "Key already in tree." << "    GOOD" << std::endl;
 	}
 }
