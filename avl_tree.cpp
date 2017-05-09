@@ -425,6 +425,12 @@ void AVLTree<Key, Data>::shiftLR(AVLTreeNode<Key, Data>*& node) {
 
 template<class Key, class Data>
 void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus status) {
+	if(status==Add){
+		this->numOfNodes++;
+	}
+	else if(status == Remove){
+		this->numOfNodes--;
+	}
 	typename List<AVLTreeNode<Key, Data>*>::Iterator it(route, false);
 	while (route.size() != 0) {
 		switch (status) {
