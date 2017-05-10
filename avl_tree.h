@@ -326,7 +326,7 @@ void AVLTree<Key, Data>::insertToTree(Key key, Data data) {
 			if (key == node->GetKey()) {
 				throw AlreadyInTree();											//The node is already in
 			}
-			if (node->GetKey() < key) {												//If key lower, go left
+			if (key < node->GetKey()) {												//If key lower, go left
 				if (!node->GetLeft()) {
 					if (node->IsLeaf()) {
 						node->SetLeft(new AVLTreeNode<Key,Data>(key, data)); 					//No more left, create a new node
@@ -350,7 +350,10 @@ void AVLTree<Key, Data>::insertToTree(Key key, Data data) {
 			}
 			node = node->GetRight();
 		}
-
+		if(root==nullptr){
+			root = new AVLTreeNode<Key,Data>(key,data);
+			numOfNodes++;
+		}
 }
 
 template<class Key, class Data>
@@ -601,7 +604,7 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus
 	if(status==Add){
 		this->numOfNodes++;
 	}
-	else if(status == Remove){
+	if(status == Remove){
 		this->numOfNodes--;
 	}
 	typename List<AVLTreeNode<Key, Data>*>::Iterator it(route, false);
@@ -631,7 +634,12 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus
 		case (OK):
 			break;
 		}
-		it.Prev();
+		try{
+		   it.Prev();
+		}
+		catch(IteratorAtStart&){
+			break;
+		}
 	}
 }
 
@@ -639,7 +647,7 @@ template<class Key,class Data>
 void AVLTree<Key,Data>::Preorder_aux(AVLTreeNode<Key,Data>* root) {
 	if(root == nullptr)
 		return;
-	std::cout << root->GetKey();
+	std::cout << root->GetKey()<< " ";
 	Preorder_aux(root->GetLeft());
 	Preorder_aux(root->GetRight());
 }
@@ -649,7 +657,7 @@ void AVLTree<Key,Data>::Inorder_aux(AVLTreeNode<Key,Data>* root) {
 	if(root == nullptr)
 		return;
 	Inorder_aux(root->GetLeft());
-	std::cout << root->GetKey();
+	std::cout << root->GetKey()<< " ";
 	Inorder_aux(root->GetRight());
 }
 

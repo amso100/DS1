@@ -44,14 +44,14 @@ int main() {
 	//Insertion testing:
 	try {
 		while(true) {
-			std::cout << "Inserting: Key = " << *keys_iter << "\tData = " << *data_iter << std::endl;
+			std::cout << "\n Inserting: Key = " << *keys_iter << "\tData = " << *data_iter << std::endl;
 			tree.insertToTree(*keys_iter, *data_iter);
 			keys_iter.Next();
 			data_iter.Next();
-			std::cout << "Number of elements in tree: " << tree.size();
+			std::cout << "Number of elements in tree: " << tree.size()<< "\n";
 			std::cout << "Printing inorder...\n";
 			tree.PrintInorder();
-			std::cout << "Printing preorder...\n";
+			std::cout << "\n Printing preorder...\n";
 			tree.PrintPreorder();
 		}
 	} catch(IteratorAtEnd& e) {

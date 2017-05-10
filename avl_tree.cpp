@@ -95,7 +95,7 @@ int AVLTreeNode<Key, Data>::BalanceFactor() {
 }
 
 template <class Key,class Data>
-Key& AVLTreeNode<Key, Data>::GetKey() {
+Key AVLTreeNode<Key, Data>::GetKey() {
 	return this->key;
 }
 
