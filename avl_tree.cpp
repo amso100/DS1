@@ -325,7 +325,7 @@ void AVLTree<Key, Data>::removeFromTree(Key key) {
 				return;
 			}
 			route.RemoveLast();
-			List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
+			typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
 			removeNode(*it,cond_right,route);
 			handleBF(route,Remove);
 			return;
