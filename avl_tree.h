@@ -254,11 +254,11 @@ int AVLTreeNode<Key, Data>::BalanceFactor() {
 	if(this->right_node == nullptr)
 		right_h = 0;
 	else
-		right_h = this->right_node->height;
+		right_h = (this->right_node->height + 1);
 	if(this->left_node == nullptr)
 		left_h = 0;
 	else
-		left_h = this->left_node->height;
+		left_h = (this->left_node->height + 1);
 	return left_h - right_h;
 }
 
