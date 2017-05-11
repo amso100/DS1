@@ -274,14 +274,20 @@ Data& AVLTreeNode<Key, Data>::GetData() {
 
 template <class Key,class Data>
 typename AVLTreeNode<Key, Data>::RollStatus AVLTreeNode<Key, Data>::GetStatus() {
+	int balance_left;
+	if(this->left_node == nullptr)
+		balance_left = 0;
+	else
+		balance_left = this->left_node->BalanceFactor();
+
 	if(this->BalanceFactor()==2){
-		if(this->left_node->BalanceFactor() >= 0){
+		if(balance_left >= 0){
 			return LL;
 		}
 		return LR;
 	}
 	if(this->BalanceFactor()==-2){
-		if(this->left_node->BalanceFactor() <= 0){
+		if(balance_left <= 0){
 			return RR;
 		}
 		return RL;
@@ -633,7 +639,7 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus
 			break;
 		case (OK):
 			break;
-		}
+		};
 		try{
 		   it.Prev();
 		}
