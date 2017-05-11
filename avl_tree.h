@@ -12,7 +12,6 @@
 #include "List.h"
 
 enum RollStatus{ LR,RR,LL,RL,OK };
-enum TreeStatus{ Add,Remove};
 /**
  * The Node of the AVL tree.
  * privates:
@@ -31,14 +30,6 @@ class AVLTreeNode{
 	AVLTreeNode<Key, Data>* left_node;
 	AVLTreeNode<Key, Data>* right_node;
 public:
-
-	enum RollStatus {
-			RR,
-			RL,
-			LR,
-			LL,
-			OK
-		};
 
 	AVLTreeNode(Key key, Data data);      //
 	~AVLTreeNode(){};                    //
@@ -81,6 +72,7 @@ public:
  */
 template<class Key,class Data>
 class AVLTree{
+	enum TreeStatus{ Add,Remove};
 	int numOfNodes;
 
 
@@ -97,10 +89,10 @@ class AVLTree{
 	void removeLeftOneSon(AVLTreeNode<Key,Data>* father);
 	void removeLeftTwoSons(AVLTreeNode<Key,Data>* father,List<AVLTreeNode<Key,Data>*>& route);
 	void handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus status);
-	void shiftRR(AVLTreeNode<Key,Data>* node);
-	void shiftLL(AVLTreeNode<Key,Data>* node);
-	void shiftRL(AVLTreeNode<Key,Data>* node);
-	void shiftLR(AVLTreeNode<Key,Data>* node);
+	void shiftRR(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
+	void shiftLL(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
+	void shiftRL(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
+	void shiftLR(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
 	void Preorder_aux(AVLTreeNode<Key,Data>* root);
 	void Inorder_aux(AVLTreeNode<Key,Data>* root);
 public:
@@ -113,6 +105,7 @@ public:
 	int size();
 	void PrintInorder();
 	void PrintPreorder();
+	Key getBiggestKey();
 
 	// Test Functions/////
 	bool testAllBFs(AVLTreeNode<Key,Data>* node){
@@ -273,12 +266,17 @@ Data& AVLTreeNode<Key, Data>::GetData() {
 }
 
 template <class Key,class Data>
-typename AVLTreeNode<Key, Data>::RollStatus AVLTreeNode<Key, Data>::GetStatus() {
+RollStatus AVLTreeNode<Key, Data>::GetStatus() {
 	int balance_left;
+	int balance_right;
 	if(this->left_node == nullptr)
 		balance_left = 0;
 	else
 		balance_left = this->left_node->BalanceFactor();
+	if(this->right_node == nullptr)
+		balance_right = 0;
+	else
+		balance_right = this->right_node->BalanceFactor();
 
 	if(this->BalanceFactor()==2){
 		if(balance_left >= 0){
@@ -287,7 +285,7 @@ typename AVLTreeNode<Key, Data>::RollStatus AVLTreeNode<Key, Data>::GetStatus() 
 		return LR;
 	}
 	if(this->BalanceFactor()==-2){
-		if(balance_left <= 0){
+		if(balance_right <= 0){
 			return RR;
 		}
 		return RL;
@@ -333,25 +331,27 @@ void AVLTree<Key, Data>::insertToTree(Key key, Data data) {
 				throw AlreadyInTree();											//The node is already in
 			}
 			if (key < node->GetKey()) {												//If key lower, go left
-				if (!node->GetLeft()) {
+				if (node->GetLeft() == nullptr) {
 					if (node->IsLeaf()) {
 						node->SetLeft(new AVLTreeNode<Key,Data>(key, data)); 					//No more left, create a new node
 						handleBF(route, Add);
 						break;
 					}
 					node->SetLeft(new AVLTreeNode<Key,Data>(key, data));
+					handleBF(route,Add);
 					break;
 				}
 				node = node->GetLeft();
 				continue;
 			}
-			if (!node->GetRight()) {
+			if (node->GetRight() == nullptr) {
 				if (node->IsLeaf()) {
 					node->SetRight(new AVLTreeNode<Key,Data>(key, data)); 										//No more left, create a new node
 					handleBF(route, Add);
 					break;
 				}
 				node->SetRight(new AVLTreeNode<Key,Data>(key, data));
+				handleBF(route,Add);
 				break;
 			}
 			node = node->GetRight();
@@ -547,7 +547,7 @@ Data& AVLTree<Key, Data>::findInTree(Key key_tofind) {
 }
 
 template<class Key, class Data>
-void AVLTree<Key, Data>::shiftLL(AVLTreeNode<Key, Data>* node) {
+void AVLTree<Key, Data>::shiftLL(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<Key,Data>*>& route) {
 	if (!node) {
 		return;
 	}
@@ -559,12 +559,27 @@ void AVLTree<Key, Data>::shiftLL(AVLTreeNode<Key, Data>* node) {
 	node->SubHeight();
 	temp->IncHeight();
 
-	node->SetLeft(temp->GetRight());
+	node->SetLeft(temp->GetLeft());
 	temp->SetRight(node);
+
+	if(root->GetKey() == node->GetKey()){
+		root = temp;
+		route.RemoveLast();
+		return;
+	}
+	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
+	it.Prev();															// not root at least 1 previous node
+	if((*it)->GetLeft()!=nullptr){
+		if((*it)->GetLeft()->GetKey() == temp->GetKey()){
+			(*it)->SetLeft(temp);
+		}
+	}
+	(*it)->SetRight(temp);
+	route.RemoveLast();
 }
 
 template<class Key, class Data>
-void AVLTree<Key, Data>::shiftRR(AVLTreeNode<Key, Data>* node) {
+void AVLTree<Key, Data>::shiftRR(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<Key,Data>*>& route) {
 	if (!node) {
 		return;
 	}
@@ -579,30 +594,47 @@ void AVLTree<Key, Data>::shiftRR(AVLTreeNode<Key, Data>* node) {
 
 	node->SetRight(temp->GetLeft());
 	temp->SetLeft(node);
+
+	if(root->GetKey() == node->GetKey()){
+		root = temp;
+		route.RemoveLast();
+		return;
+	}
+	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
+	it.Prev();
+	if((*it)->GetLeft()!=nullptr){
+		if((*it)->GetLeft()->GetKey() == temp->GetKey()){
+			(*it)->SetLeft(temp);
+		}
+	}
+	(*it)->SetRight(temp);
+	route.RemoveLast();
 }
 
 template<class Key, class Data>
-void AVLTree<Key, Data>::shiftRL(AVLTreeNode<Key, Data>* node) {
-	if (!node) {
-		return;
-	}
-	if (!node->GetLeft()) {
-		return;
-	}
-	shiftRR(node->GetLeft());
-	shiftLL(node);
-}
-
-template<class Key, class Data>
-void AVLTree<Key, Data>::shiftLR(AVLTreeNode<Key, Data>* node) {
+void AVLTree<Key, Data>::shiftRL(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<Key,Data>*>& route) {
 	if (!node) {
 		return;
 	}
 	if (!node->GetRight()) {
 		return;
 	}
-	shiftLL(node->GetRight());
-	shiftRR(node);
+	route.PushBack(node->GetRight());
+	shiftLL(node->GetRight(),route);
+	shiftRR(node,route);
+}
+
+template<class Key, class Data>
+void AVLTree<Key, Data>::shiftLR(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<Key,Data>*>& route) {
+	if (!node) {
+		return;
+	}
+	if (!node->GetLeft()) {
+		return;
+	}
+	route.PushBack(node->GetLeft());
+	shiftRR(node->GetLeft(),route);
+	shiftLL(node,route);
 }
 
 template<class Key, class Data>
@@ -613,8 +645,8 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus
 	if(status == Remove){
 		this->numOfNodes--;
 	}
-	typename List<AVLTreeNode<Key, Data>*>::Iterator it(route, false);
 	while (route.Size() != 0) {
+		typename List<AVLTreeNode<Key, Data>*>::Iterator it(route, false);
 		switch (status) {
 		case Add:
 			(*it)->IncHeight();
@@ -623,30 +655,37 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus
 			(*it)->SubHeight();
 			break;
 		};
-		typename AVLTreeNode<Key, Data>::RollStatus res = (*it)->GetStatus();
+		RollStatus res = (*it)->GetStatus();
 		switch (res) {
 		case (RL):						// Continue from here
-			shiftRL(*it);
+			shiftRL(*it,route);
 			break;
 		case (RR):
-			shiftRR(*it);
+			shiftRR(*it,route);
 			break;
 		case (LL):
-			shiftLL(*it);
+			shiftLL(*it,route);
 			break;
 		case (LR):
-			shiftLR(*it);
+			shiftLR(*it,route);
 			break;
 		case (OK):
+			route.RemoveLast();
 			break;
 		};
-		try{
-		   it.Prev();
-		}
-		catch(IteratorAtStart&){
-			break;
-		}
 	}
+}
+
+template<class Key,class Data>
+Key AVLTree<Key,Data>::getBiggestKey(){
+	if(root==nullptr){
+		throw EmptyTree();
+	}
+	AVLTreeNode<Key,Data>* node = root;
+	while(node->right != nullptr){
+		node= node->GetRight();
+	}
+	return node->GetKey();
 }
 
 template<class Key,class Data>
