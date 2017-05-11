@@ -12,4 +12,9 @@ class ListException : public std::exception { };
 class IteratorAtEnd : public ListException { };
 class IteratorAtStart : public ListException { };
 
+class SchoolException {};
+class AllocationError : public SchoolException {};
+class InvalidInput    : public SchoolException {};
+class Failure         : public SchoolException {};
+
 #endif /* EXCEPTIONS_H_ */

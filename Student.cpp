@@ -37,3 +37,16 @@ void Student::UpdatePower(int pw) {
 		throw Failure();
 	this->power = pw;
 }
+
+bool Student::operator<(const Student& other) {
+	if(this->power < other.power)
+		return true;
+	else if(this->power == other.power && this->student_id < other.student_id)
+		return false;
+	else
+		return true;
+}
+
+bool Student::operator==(const Student& other) {
+	return this->student_id == other.student_id;
+}

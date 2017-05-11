@@ -87,25 +87,25 @@ class AVLTree{
 	void removeLeftLeaf(AVLTreeNode<Key,Data>* father);
 	void removeLeftOneSon(AVLTreeNode<Key,Data>* father);
 	void removeLeftTwoSons(AVLTreeNode<Key,Data>* father,List<AVLTreeNode<Key,Data>*>& route);
-	void handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus status);									//Checks after insertion/deletion the proper method of rotations
-	void shiftRR(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);							//Methods of rotation
+	void handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus status);
+	void shiftRR(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
 	void shiftLL(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
 	void shiftRL(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
 	void shiftLR(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
-	void Preorder_aux(AVLTreeNode<Key,Data>* root);															//Function to print the entire tree pre-order
-	void Inorder_aux(AVLTreeNode<Key,Data>* root);															//Function to print the entire tree in-order
-
-	//Public Functions////////////////////////////////////////////////////////////////////////////////////////////////////////
+	void Preorder_aux(AVLTreeNode<Key,Data>* root);
+	void Inorder_aux(AVLTreeNode<Key,Data>* root);
+	std::vector<Key> RevInorderAux(std::vector<Key>& vec, AVLTreeNode<Key, Data> root);
 public:
-	AVLTree();																								//Constructor
-	~AVLTree();																								//Destructor
-	Data& findInTree(Key key_tofind);																		//Search the tree for a key, returns the data
-	void  insertToTree(Key key,Data data);																	//Inserts a node to the tree,according to the AVL restrictions
-	void  removeFromTree(Key key);																			//Removes a node from the tree, according to the AVL restrictions
-	int size();																								//Returns the size of the tree
-	void PrintInorder();																					//Prints the tree In-Order.
-	void PrintPreorder();																					//Prints the tree Pre-Order.
-	Key getBiggestKey();																					//Returns the largest key in the tree
+	AVLTree();
+	~AVLTree();
+	Data& findInTree(Key key_tofind);
+	void  insertToTree(Key key,Data data);
+	void  removeFromTree(Key key);
+	int getNodeBF(Key key);
+	int size();
+	void PrintInorder();
+	void PrintPreorder();
+	bool Exists(Key key);
 
 	// Test Functions/////
 	bool testAllBFs(AVLTreeNode<Key,Data>* node){
@@ -778,6 +778,34 @@ void AVLTree<Key,Data>::PrintPreorder() {
 template<class Key, class Data>
 void AVLTree<Key,Data>::PrintInorder() {
 	this->Inorder_aux(this->root);
+}
+
+template<class Key, class Data>
+std::vector<Key> AVLTree<Key, Data>::ReverseInorderKeys() {
+	std::vector<Key> vec;
+	return RevInorderAux(vec, this->root);
+}
+
+template<class Key, class Data>
+std::vector<Key> AVLTree<Key, Data>::RevInorderAux(std::vector<Key>& vec, AVLTreeNode<Key, Data> root) {
+	if(root.IsLeaf())
+		vec.push_back(root.GetKey());
+	else {
+		vec += RevInorderAux(vec, root.GetRight());
+		vec.push_back(root.GetKey());
+		vec += RevInorderAux(vec, root.GetLeft());
+	}
+	return vec;
+}
+
+template<class Key, class Data>
+bool AVLTree<Key, Data>::Exists(Key key) {
+	try {
+		this->findInTree(key);
+		return true;
+	} catch(NotInTree& e) {
+		return false;
+	}
 }
 
 #endif /* AVL_TREE_H_ */

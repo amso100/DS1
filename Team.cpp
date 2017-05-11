@@ -10,14 +10,34 @@
 Team::Team(int id) {
 	this->team_id = id;
 	this->best = nullptr;
+	this->team_size = 0;
 }
 
-void Team::AddStudent(int stud_id) {
-	//Add code for adding to AVL tree.
+void Team::AddStudent(Student* student) {
+	try {
+		//First, add student to tree of students in team.
+		this->team_students.insertToTree(student, student->GetPower());
+	} catch(AlreadyInTree& e) {
+		return;
+	}
+
+	//Then check if best, or if team was empty until now.
+	if(this->best == nullptr)
+		this->best = student;
+	if(*(this->best) < *student)
+		this->best = student;
+	this->team_size++;
 }
 
-void Team::RemoveStudent(int stud_id) {
-	//Add code for removing from AVL tree.
+void Team::RemoveStudent(Student* student) {
+	try {
+		this->team_students.removeFromTree(student);
+	} catch(NotInTree& e) {
+		return;
+	}
+	if(this->best == student)
+		this->UpdateMostPowerful();
+	this->team_size--;
 }
 
 Student* Team::MostPowerfulInGroup() {
@@ -25,6 +45,11 @@ Student* Team::MostPowerfulInGroup() {
 }
 
 std::vector<Student*> Team::GetStudentsByPower() {
-	//Add code for getting all by power.
-	return nullptr;
+	std::vector<Student*> by_power;
+	return this->team_students.ReverseInorderKeys();
+}
+
+void Team::UpdateMostPowerful() {
+	Student* most_power = this->team_students.MostRight();
+	this->best = most_power;
 }

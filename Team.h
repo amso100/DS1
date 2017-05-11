@@ -15,14 +15,31 @@
 class Team {
 private:
 	int team_id;
+	int team_size;
 	Student* best;
-	//AVL tree <Student*>
+	AVLTree<Student*, int> team_students;
+	void UpdateMostPowerful();
 public:
+
+	//Creates a new empty team.
 	explicit Team(int id);
+
+	//Destroys the current team.
 	~Team();
-	void AddStudent(int  stud_id);
-	void RemoveStudent(int stud_id);
+
+	//Returns team's current size.
+	int GetSize();
+
+	//Adds a student with the given ID to the current team.
+	void AddStudent(Student* student);
+
+	//Removes the student with the given ID.
+	void RemoveStudent(Student* student);
+
+	//Returns the most powerful student on the team.
 	Student* MostPowerfulInGroup();
+
+	//Gets a vector of all students in team by their power.
 	std::vector<Student*> GetStudentsByPower();
 };
 #endif /* TEAM_H_ */
