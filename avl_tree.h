@@ -95,7 +95,6 @@ class AVLTree{
 	void shiftLR(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
 	void Preorder_aux(AVLTreeNode<Key,Data>* root);
 	void Inorder_aux(AVLTreeNode<Key,Data>* root);
-
 public:
 	AVLTree();
 	~AVLTree();
