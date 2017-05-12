@@ -30,6 +30,9 @@ public:
 	//Returns team's current size.
 	int GetSize();
 
+	//Returns the current team's ID.
+	int GetID();
+
 	//Adds a student with the given ID to the current team.
 	void AddStudent(Student* student);
 

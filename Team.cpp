@@ -13,6 +13,14 @@ Team::Team(int id) {
 	this->team_size = 0;
 }
 
+int Team::GetSize() {
+	return this->team_size;
+}
+
+int Team::GetID() {
+	return this->team_id;
+}
+
 void Team::AddStudent(Student* student) {
 	try {
 		//First, add student to tree of students in team.

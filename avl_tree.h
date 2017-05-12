@@ -94,7 +94,7 @@ class AVLTree{
 	void shiftLR(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
 	void Preorder_aux(AVLTreeNode<Key,Data>* root);
 	void Inorder_aux(AVLTreeNode<Key,Data>* root);
-	std::vector<Key> RevInorderAux(std::vector<Key>& vec, AVLTreeNode<Key, Data> root);
+	std::vector<Data> RevInorderAux(std::vector<Data>& vec, AVLTreeNode<Key, Data> root);
 public:
 	AVLTree();
 	~AVLTree();
@@ -781,18 +781,18 @@ void AVLTree<Key,Data>::PrintInorder() {
 }
 
 template<class Key, class Data>
-std::vector<Key> AVLTree<Key, Data>::ReverseInorderKeys() {
-	std::vector<Key> vec;
+std::vector<Data> AVLTree<Key, Data>::ReverseInorderKeys() {
+	std::vector<Data> vec;
 	return RevInorderAux(vec, this->root);
 }
 
 template<class Key, class Data>
-std::vector<Key> AVLTree<Key, Data>::RevInorderAux(std::vector<Key>& vec, AVLTreeNode<Key, Data> root) {
+std::vector<Data> AVLTree<Key, Data>::RevInorderAux(std::vector<Data>& vec, AVLTreeNode<Key, Data> root) {
 	if(root.IsLeaf())
-		vec.push_back(root.GetKey());
+		vec.push_back(root.GetData());
 	else {
 		vec += RevInorderAux(vec, root.GetRight());
-		vec.push_back(root.GetKey());
+		vec.push_back(root.GetData());
 		vec += RevInorderAux(vec, root.GetLeft());
 	}
 	return vec;
