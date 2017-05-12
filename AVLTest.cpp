@@ -55,6 +55,10 @@ int main() {
 			tree.PrintPreorder();
 		}
 	} catch(IteratorAtEnd& e) {
+		std::cout << "Printing inorder...\n";
+		tree.PrintInorder();
+		std::cout << "\n Printing preorder...\n";
+		tree.PrintPreorder();
 		std::cout << "\nFinished Insertion\n";
 	}
 
@@ -75,7 +79,7 @@ int main() {
 
 	//Finding non-existing key: (Should throw exception)
 	try {
-		std::cout << "Data of key 4 is " << tree.findInTree(69) << "    BAD" << std::endl;
+		std::cout << "Data of key 69 is " << tree.findInTree(69) << "    BAD" << std::endl;
 	} catch (NotInTree& e) {
 		std::cout << "Key is not in tree." << "    GOOD" << std::endl;
 	}
@@ -84,6 +88,10 @@ int main() {
 	try {
 		std::cout << "Removing Key=4 from tree (currently root)...\n";
 		tree.removeFromTree(4);
+		std::cout << "Printing inorder...\n";
+		tree.PrintInorder();
+		std::cout << "Printing preorder...\n";
+		tree.PrintPreorder();
 	} catch (...) {
 		std::cout << "Error removing root (not good)." << std::endl;
 	}

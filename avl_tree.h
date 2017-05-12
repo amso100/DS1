@@ -41,6 +41,7 @@ public:
 	void SetLeft(AVLTreeNode<Key, Data>* left);   //
 	void SetRight(AVLTreeNode<Key, Data>* right); //
 	int NumOfSons();					 //
+	void SetHeight(int height);			//
 	void IncHeight();                    //
 	void SubHeight();                    //
 	int BalanceFactor();                 //
@@ -183,6 +184,11 @@ AVLTreeNode<Key, Data>::AVLTreeNode(const AVLTreeNode<Key, Data>& avl) {
 	this->left_node   = avl.left_node;
 	this->right_node  = avl.right_node;
 	this->height      = avl.height;
+}
+
+template <class Key,class Data>
+void AVLTreeNode<Key,Data>::SetHeight(int height) {
+	this->height=height;
 }
 
 template <class Key,class Data>
@@ -380,14 +386,18 @@ void AVLTree<Key,Data>::removeRoot(List<AVLTreeNode<Key,Data>*> route){
 		root = temp;
 	}
 	route.PushBack(temp);										//If the root has 2 sons, we'll pick the left son, travel the farthest
-	temp = temp->GetRight();									//right, switch between the nodes, and delete the leaf.
+	temp = temp->GetLeft();									//right, switch between the nodes, and delete the leaf.
 	route.PushBack(temp);
-	while(temp->GetLeft()!=nullptr){
-		temp = temp->GetLeft();
+	while(temp->GetRight()!=nullptr){
+		temp = temp->GetRight();
 		route.PushBack(temp);
 	}
 	route.RemoveLast();
+	int height = root->GetHeight();
+	temp->SetRight(root->GetRight());
+	temp->SetLeft(root->GetLeft());
 	*(root) = *temp;
+	temp->SetHeight(height);
 	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
 	delete temp;
 	(*it)->SetRight(nullptr);
@@ -445,6 +455,8 @@ void AVLTree<Key,Data>::removeRightTwoSons(AVLTreeNode<Key,Data>* father,List<AV
 	}
 	route.RemoveLast();
 	*temp = *(next);
+	temp->SetRight(next->GetRight());
+	temp->SetLeft(next->GetLeft());
 	delete next;
 	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);		//The last node before the leaf.
 	(*it)->SetRight(nullptr);
@@ -462,6 +474,8 @@ void AVLTree<Key,Data>::removeLeftTwoSons(AVLTreeNode<Key,Data>* father,List<AVL
 	}
 	route.RemoveLast();
 	*temp = *next;
+	temp->SetRight(next->GetRight());
+	temp->SetLeft(next->GetLeft());
 	delete next;
 	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
 	(*it)->SetRight(nullptr);
@@ -497,7 +511,7 @@ void AVLTree<Key, Data>::removeFromTree(Key key) {
 	bool cond_right;											//A variable to check which node to remove, left or right
 	List<AVLTreeNode<Key,Data>*> route;							//A list of the route to track which nodes we visited
 	AVLTreeNode<Key,Data>* node = root;
-	while(!node){
+	while(node != nullptr){
 		route.PushBack(node);
 		if(node->GetKey() == key){
 			if(node == root){
@@ -559,19 +573,22 @@ void AVLTree<Key, Data>::shiftLL(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<K
 	node->SubHeight();
 	temp->IncHeight();
 
-	node->SetLeft(temp->GetLeft());
+	node->SetLeft(temp->GetRight());
 	temp->SetRight(node);
 
 	if(root->GetKey() == node->GetKey()){
 		root = temp;
 		route.RemoveLast();
+		route.PushBack(temp);
 		return;
 	}
 	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
 	it.Prev();															// not root at least 1 previous node
 	if((*it)->GetLeft()!=nullptr){
-		if((*it)->GetLeft()->GetKey() == temp->GetKey()){
+		if((*it)->GetLeft()->GetKey() == node->GetKey()){
 			(*it)->SetLeft(temp);
+			route.RemoveLast();
+			return;
 		}
 	}
 	(*it)->SetRight(temp);
@@ -598,13 +615,16 @@ void AVLTree<Key, Data>::shiftRR(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<K
 	if(root->GetKey() == node->GetKey()){
 		root = temp;
 		route.RemoveLast();
+		route.PushBack(temp);
 		return;
 	}
 	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
 	it.Prev();
 	if((*it)->GetLeft()!=nullptr){
-		if((*it)->GetLeft()->GetKey() == temp->GetKey()){
+		if((*it)->GetLeft()->GetKey() == node->GetKey()){
 			(*it)->SetLeft(temp);
+			route.RemoveLast();
+			return;
 		}
 	}
 	(*it)->SetRight(temp);
@@ -620,8 +640,11 @@ void AVLTree<Key, Data>::shiftRL(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<K
 		return;
 	}
 	route.PushBack(node->GetRight());
+	node->SubHeight();
+	node->GetRight()->GetLeft()->SubHeight();
 	shiftLL(node->GetRight(),route);
 	shiftRR(node,route);
+
 }
 
 template<class Key, class Data>
@@ -633,8 +656,11 @@ void AVLTree<Key, Data>::shiftLR(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<K
 		return;
 	}
 	route.PushBack(node->GetLeft());
+	node->SubHeight();
+	node->GetLeft()->GetRight()->SubHeight();
 	shiftRR(node->GetLeft(),route);
 	shiftLL(node,route);
+	node->SubHeight();
 }
 
 template<class Key, class Data>
