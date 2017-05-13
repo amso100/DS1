@@ -102,13 +102,14 @@ int main() {
 	//Adding some more to make things more interesting...
 	try {
 		while(true) {
+			std::cout<< "Adding Key: "<< (*second_keys) << "\n";
 			tree.insertToTree(*second_keys, *data_second);
-			second_keys.Next(); data_second.Next();
 			std::cout << "Number of keys now: " << tree.size() << std::endl;
 			std::cout << "Printing inorder...\n";
 			tree.PrintInorder();
 			std::cout << "Printing preorder...\n";
 			tree.PrintPreorder();
+			second_keys.Next(); data_second.Next();
 		}
 	} catch (IteratorAtEnd& e) {
 		std::cout << "Finished insertion 2.\n";
@@ -131,13 +132,14 @@ int main() {
 	//Removing the nodes in the given order from the list:
 	try {
 		while(true) {
+			std::cout << "Removing Key: "<< (*remove_iter) << "\n";
 			tree.removeFromTree(*remove_iter);
-			remove_iter.Next();
 			std::cout << "Number of keys now: " << tree.size() << std::endl;
 			std::cout << "Printing inorder...\n";
 			tree.PrintInorder();
 			std::cout << "Printing preorder...\n";
 			tree.PrintPreorder();
+			remove_iter.Next();
 		}
 	} catch(IteratorAtEnd& e) {
 		if(tree.size() == 0)
