@@ -141,6 +141,15 @@ public:
 		delete array;
 		return true;
 	}
+
+	Key* TreeToArray(AVLTreeNode<Key,Data>* node){
+			if(!node){
+				return false;
+			}
+			Key* array = new Data[numOfNodes];
+			addValuesToTree(array,root);
+			return array;
+		}
 	///// The rest of the tree functions//////
 
 	AVLTree(const AVLTree&)=delete;																				//No copy constructor for tree
