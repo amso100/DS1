@@ -24,7 +24,7 @@ int Team::GetID() {
 void Team::AddStudent(Student* student) {
 	try {
 		//First, add student to tree of students in team.
-		this->team_students.insertToTree(student, student->GetPower());
+		this->team_students.insertToTree(StudentPower(student->GetID(), student->GetPower()), student);
 	} catch(AlreadyInTree& e) {
 		return;
 	}
@@ -39,7 +39,7 @@ void Team::AddStudent(Student* student) {
 
 void Team::RemoveStudent(Student* student) {
 	try {
-		this->team_students.removeFromTree(student);
+		this->team_students.removeFromTree(StudentPower(student->GetID(), student->GetPower()));
 	} catch(NotInTree& e) {
 		return;
 	}
@@ -48,16 +48,15 @@ void Team::RemoveStudent(Student* student) {
 	this->team_size--;
 }
 
-Student* Team::MostPowerfulInGroup() {
+StudentPower Team::MostPowerfulInGroup() {
 	return this->best;
 }
 
-std::vector<Student*> Team::GetStudentsByPower() {
-	std::vector<Student*> by_power;
+StudentPower* Team::GetStudentsByPower() {
 	return this->team_students.ReverseInorderKeys();
 }
 
 void Team::UpdateMostPowerful() {
-	Student* most_power = this->team_students.MostRight();
+	StudentPower most_power = this->team_students.getBiggestKey();
 	this->best = most_power;
 }

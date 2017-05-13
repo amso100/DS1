@@ -71,7 +71,7 @@ public:
 	void RemoveStudent(int student_id);
 
 	//Returns a vector of all the students in school/team by their power.
-	std::vector<Student*> GetAllStudentsByPower(int team_id);
+	Student** GetAllStudentsByPower(int team_id);
 
 	//Increases the power of all students in a grade, and their gradde by given amounts. O(n)
 	void IncreaseLevel(int grade, int inc);

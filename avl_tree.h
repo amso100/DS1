@@ -87,6 +87,7 @@ class AVLTree{
 	void removeLeftLeaf(AVLTreeNode<Key,Data>* father);
 	void removeLeftOneSon(AVLTreeNode<Key,Data>* father);
 	void removeLeftTwoSons(AVLTreeNode<Key,Data>* father,List<AVLTreeNode<Key,Data>*>& route);
+
 	void handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus status);
 	void shiftRR(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
 	void shiftLL(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
@@ -94,7 +95,7 @@ class AVLTree{
 	void shiftLR(AVLTreeNode<Key,Data>* node,List<AVLTreeNode<Key,Data>*>& route);
 	void Preorder_aux(AVLTreeNode<Key,Data>* root);
 	void Inorder_aux(AVLTreeNode<Key,Data>* root);
-	std::vector<Data> RevInorderAux(std::vector<Data>& vec, AVLTreeNode<Key, Data> root);
+
 public:
 	AVLTree();
 	~AVLTree();
@@ -105,7 +106,11 @@ public:
 	int size();
 	void PrintInorder();
 	void PrintPreorder();
+	Key* ReverseInorderKeys();
+	Data* ReverseInorderData();
 	bool Exists(Key key);
+	void UpdateTreeFromArrays(Key* key_array, int len_key, Data* data_array, int len_data);
+	Key getBiggestKey();
 
 	// Test Functions/////
 	bool testAllBFs(AVLTreeNode<Key,Data>* node){
@@ -127,6 +132,15 @@ public:
 		addValuesToTree(array+1,*node->right_node);
 		return;
 	}
+	void addTreeKeys(Key* array, AVLTreeNode<Key, Data>* node) {
+		if(!node){
+			return;
+		}
+		addTreeKeys(array,*node->left_node);
+		*array = *node->key;
+		addTreeKeys(array+1,*node->right_node);
+		return;
+	}
 	bool testSearchTree(AVLTreeNode<Key,Data>* node){
 		if(!node){
 			return false;
@@ -142,14 +156,23 @@ public:
 		return true;
 	}
 
-	Key* TreeToArray(AVLTreeNode<Key,Data>* node){
-			if(!node){
-				return false;
-			}
-			Key* array = new Data[numOfNodes];
-			addValuesToTree(array,root);
-			return array;
+	Key* GetTreeKeys(AVLTreeNode<Key,Data>* node) {
+		if(!node){
+			return false;
 		}
+		Key array[] = new Key[numOfNodes];
+		addTreeKeys(array,root);
+		return array;
+	}
+
+	Data* GetTreeData(AVLTreeNode<Key,Data>* node){
+		if(!node){
+			return false;
+		}
+		Data array[] = new Data[numOfNodes];
+		addValuesToTree(array,root);
+		return array;
+	}
 	///// The rest of the tree functions//////
 
 	AVLTree(const AVLTree&)=delete;																				//No copy constructor for tree
@@ -790,21 +813,13 @@ void AVLTree<Key,Data>::PrintInorder() {
 }
 
 template<class Key, class Data>
-std::vector<Data> AVLTree<Key, Data>::ReverseInorderKeys() {
-	std::vector<Data> vec;
-	return RevInorderAux(vec, this->root);
+Data* AVLTree<Key, Data>::ReverseInorderData() {
+	return this->GetTreeData(this->root);
 }
 
 template<class Key, class Data>
-std::vector<Data> AVLTree<Key, Data>::RevInorderAux(std::vector<Data>& vec, AVLTreeNode<Key, Data> root) {
-	if(root.IsLeaf())
-		vec.push_back(root.GetData());
-	else {
-		vec += RevInorderAux(vec, root.GetRight());
-		vec.push_back(root.GetData());
-		vec += RevInorderAux(vec, root.GetLeft());
-	}
-	return vec;
+Key* AVLTree<Key, Data>::ReverseInorderKeys() {
+	return this->GetTreeKeys(this->root);
 }
 
 template<class Key, class Data>
@@ -817,4 +832,27 @@ bool AVLTree<Key, Data>::Exists(Key key) {
 	}
 }
 
-#endif /* AVL_TREE_H_ */
+template<class Key, class Data>
+AVLTreeNode<Key, Data>* BalancedTreeFromArray(AVLTreeNode<Key, Data>** arr, int start, int end) {
+	if(start > end)
+		return nullptr;
+	int mid = start + (end - start)/2;
+	AVLTreeNode<Key, Data>* root = new AVLTreeNode<Key, Data>(arr[mid]);
+	root->SetLeft(BalancedTreeFromArray(arr, start, mid-1));
+	root->SetRight(BalancedTreeFromArray(arr, mid+1, end));
+	return root;
+}
+
+template<class Key, class Data>
+void AVLTree<Key, Data>::UpdateTreeFromArrays(Key* key_array, int len_key, Data* data_array, int len_data) {
+	if(len_key != len_data)
+		return;
+	AVLTreeNode<Key, Data>** arr = new AVLTreeNode<Key, Data>**[len_key];
+	for(int i = 0; i < len_key; i++) {
+		arr[i] = new AVLTreeNode<Key, Data>(key_array[i], data_array[i]);
+	}
+	AVLTreeNode<Key, Data>* next_root = BalancedTreeFromArray(arr, 0, len_key);
+	this->deleteTree(this->root);
+	this->root = next_root;
+	delete arr;
+}

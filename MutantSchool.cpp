@@ -17,7 +17,7 @@ void MutantSchool::UpdatePowerful() {
 	if(this->student_count == 0)
 		this->best_all = nullptr;
 	else
-		this->best_all = this->students_by_power.MostRight();
+		this->best_all = this->students_by_power.getBiggestKey();
 }
 
 MutantSchool::~MutantSchool() {
@@ -98,7 +98,7 @@ int MutantSchool::GetMostPowerful(int team_id) {
 		Team* request_team = this->school_teams.findInTree(team_id);
 		if(request_team->MostPowerfulInGroup() == nullptr)
 			throw Failure();
-		return request_team->MostPowerfulInGroup()->GetID();
+		return request_team->MostPowerfulInGroup().GetID();
 	}
 }
 
@@ -127,7 +127,7 @@ void MutantSchool::RemoveStudent(int stud_id) {
 	delete remove;
 }
 
-std::vector<Student*> MutantSchool::GetAllStudentsByPower(int team_id) {
+Student** MutantSchool::GetAllStudentsByPower(int team_id) {
 	if(team_id == 0)
 		throw Failure();
 	else if(team_id < 0)
@@ -140,9 +140,60 @@ std::vector<Student*> MutantSchool::GetAllStudentsByPower(int team_id) {
 	}
 }
 
+int GetCountInGrade(Student** stud_arr, int len, int grade) {
+	int count = 0;
+	for(int i = 0; i < len; i++) {
+		if(stud_arr[i]->GetGrade() == grade)
+			count++;
+	}
+	return count;
+}
+
+Student** StudentsOnlyInGrade(Student** stud_arr, int len, int grade) {
+	int in_grade = GetCountInGrade(stud_arr, len, grade);
+	Student** only_in_grade = new Student*[in_grade];
+	int place = 0; // place < in_grade
+	for(int i = 0; i < len; i++) {
+		if(stud_arr[i]->GetGrade() == grade) {
+			only_in_grade[place] = stud_arr[i];
+			place++;
+		}
+	}
+	return only_in_grade;
+}
+
+Student** NotInGrade(Student** studs_arr, int len, int grade) {
+	int in_grade = GetCountInGrade(studs_arr, len, grade);
+	Student** not_in_grade = new Student*[len - in_grade];
+	int place = 0;
+	for(int i = 0; i < len; i++) {
+		if(studs_arr[i]->GetGrade() != grade) {
+			not_in_grade[place] = studs_arr[i];
+			place++;
+		}
+	}
+	return not_in_grade;
+}
+
+Student** MergeByPower(Student** arr1, int len1, Student** arr2, int len2) {
+	Student** res = new Student*[len1 + len2];
+}
+
 //Solution does not currently meet the required complexity
 //Also switch power and Student in students_by_power tree.
 void MutantSchool::IncreaseLevel(int grade, int inc) {
+	//For the whole school power tree:
+	StudentPower* power_arr = this->students_by_power.ReverseInorderKeys();
+	Student**     studs_arr = this->students_by_power.ReverseInorderData();
+	int grade_count = GetCountInGrade(studs_arr, this->student_count, grade);
+	Student** grade_arr = StudentsOnlyInGrade(studs_arr, grade_count, grade);
+	Student** not_grade = NotInGrade(studs_arr, this->student_count, grade);
+	//Split StudentPower array as well
+	//Merge both pairs of arrays in parallel, or do one and the other as a key for which to take.
+	//Insert both merged arrays into the AllPowers tree.
+	//Do the same for every team that needs this as well, and explain why it is O(n+k) total.
+}
+
 //	if(grade <= 0 || inc <= 0)
 //		throw Failure();
 //	List<Student*> studs_in_grade;
@@ -176,5 +227,3 @@ void MutantSchool::IncreaseLevel(int grade, int inc) {
 //			inc_level_iter.Next();
 //		}
 //	} catch(IteratorAtEnd& e) { }
-
-}

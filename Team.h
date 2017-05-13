@@ -16,8 +16,8 @@ class Team {
 private:
 	int team_id;
 	int team_size;
-	Student* best;
-	AVLTree<Student*, int> team_students;
+	StudentPower best;
+	AVLTree<StudentPower, Student*> team_students;
 	void UpdateMostPowerful();
 public:
 
@@ -40,9 +40,9 @@ public:
 	void RemoveStudent(Student* student);
 
 	//Returns the most powerful student on the team.
-	Student* MostPowerfulInGroup();
+	StudentPower MostPowerfulInGroup();
 
 	//Gets a vector of all students in team by their power.
-	std::vector<Student*> GetStudentsByPower();
+	StudentPower* GetStudentsByPower();
 };
 #endif /* TEAM_H_ */
