@@ -195,7 +195,6 @@ void MutantSchool::IncreaseLevel(int grade, int inc) {
 	//Insert both merged arrays into the AllPowers tree.
 	//Do the same for every team that needs this as well, and explain why it is O(n+k) total.
 }
-
 //	if(grade <= 0 || inc <= 0)
 //		throw Failure();
 //	List<Student*> studs_in_grade;
