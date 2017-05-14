@@ -29,12 +29,13 @@ int main() {
 	std::cout << "Power level: " << 1 << std::endl;
 	std::cout << "Grade: " << 1 << std::endl;
 	school.AddStudent(5, 1, 1);
+	std::cout << "Number of students currently: " << school.StudentsNum() << std::endl;
 	std::cout << "Removing student: " << 4;
 	try {
 		school.RemoveStudent(4);
-		std::cout << "Bad" << std::endl;
+		std::cout << " Bad" << std::endl;
 	} catch (Failure&) {
-		std::cout << "Good" << std::endl;
+		std::cout << " Good" << std::endl;
 	}
 	std::cout << "Adding Student with id: " << 4 << std::endl;
 	std::cout << "Power level: " << 3 << std::endl;
@@ -44,7 +45,7 @@ int main() {
 		std::cout << "Adding Student with id: " << j << std::endl;
 		std::cout << "Power level: " << 15 - j << std::endl;
 		std::cout << "Grade: " << 2 << std::endl;
-		school.AddStudent(j, 2, j - 1);
+		school.AddStudent(j, 2, 15 - j);
 	}
 	std::cout << "Adding Student with id: " << 6 << std::endl;
 	std::cout << "Power level: " << 2 << std::endl;
@@ -62,8 +63,9 @@ int main() {
 		std::cout << "Adding team " << m << std::endl;
 		school.AddTeam(m);
 	}
+	std::cout << "Finished adding teams.\n";
 	for (int n = 1; n < 4; n++) {
-		std::cout << "Moving Student " << n << "to Group 1...";
+		std::cout << "Moving Student " << n << " to Group 1...";
 		try {
 			school.MoveStudentToTeam(n, 1);
 			std::cout << "Good" << std::endl;
@@ -128,6 +130,8 @@ int main() {
 	std::cout << "Getting the strongest mutant...";
 	if (school.GetMostPowerful(-1) == 7) {
 		std::cout << " Good" << std::endl;
+	} else {
+		std::cout << " Bad\n";
 	}
 	std::cout << "Getting the strongest in Team 1....";
 	if (school.GetMostPowerful(1) == 7) {
@@ -148,6 +152,7 @@ int main() {
 	school.MoveStudentToTeam(7, 2);
 
 	std::cout << "Getting the strongest in Team 1....";
+	std::cout << "Strongest: " << school.GetMostPowerful(1) << std::endl;
 	if (school.GetMostPowerful(1) == 8) {
 		std::cout << "Good" << std::endl;
 	} else {
@@ -161,8 +166,13 @@ int main() {
 		std::cout << "Good" << std::endl;
 	}
 	std::cout << "Removing student number 8...";
-	school.RemoveStudent(8);
-	school.GetMostPowerful(1);
+	try {
+		school.RemoveStudent(8);
+	} catch(...) {
+		std::cout << "Bad\n";
+	}
+
+	std::cout << "Most powerful in 1: " << school.GetMostPowerful(1) << std::endl;
 
 	try {
 		std::cout << "Getting all students by power from team 1" << std::endl;

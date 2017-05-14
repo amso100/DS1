@@ -23,6 +23,10 @@ void MutantSchool::UpdatePowerful() {
 
 MutantSchool::~MutantSchool() { }
 
+int MutantSchool::StudentsNum() {
+	return this->student_count;
+}
+
 void MutantSchool::AddStudent(int id, int grade, int power) {
 	if(id <= 0 || grade <= 0 || power <= 0)
 		throw InvalidInput();
@@ -74,12 +78,16 @@ void MutantSchool::MoveStudentToTeam(int stud_id, int team_id) {
 	else
 		current = this->student_teams.findInTree(stud_id);
 	Team* dest = this->school_teams.findInTree(team_id);
-	if(team_id == current->GetID())
+	if(current != nullptr && (team_id == current->GetID()))
 		return;
 
 	Student* student = this->students_by_id.findInTree(stud_id);
-	current->RemoveStudent(student);
+	if(current != nullptr) {
+		current->RemoveStudent(student);
+		this->student_teams.removeFromTree(stud_id);
+	}
 	dest->AddStudent(student);
+	this->student_teams.insertToTree(stud_id, dest);
 }
 
 int MutantSchool::GetMostPowerful(int team_id) {
@@ -118,7 +126,7 @@ void MutantSchool::RemoveStudent(int stud_id) {
 	StudentPower rem_pow(remove->GetID(), remove->GetPower());
 	this->students_by_id.removeFromTree(stud_id);               //Removing from tree of ID.
 	this->students_by_power.removeFromTree(rem_pow); //Removing from tree of power->Student
-	this->student_teams.removeFromTree(stud_id);                //Removing from tree of student->team
+	this->student_teams.removeFromTree(stud_id);
 	this->student_count--;
 	if(this->best_all.GetID() == stud_id)                      //If the removed student was also the best.
 		this->UpdatePowerful(); //Update the next most powerful student.

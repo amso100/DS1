@@ -62,6 +62,8 @@ public:
 	//Destroys the given school instance. O(n + k)
 	~MutantSchool();
 
+	int StudentsNum();
+
 	//Adds a new student to the school with given ID, grade, power. O(log n)
 	void AddStudent(int id, int grade, int power);
 

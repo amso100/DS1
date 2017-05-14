@@ -58,8 +58,18 @@ StudentPower* Team::GetStudentsByPower(int* size) {
 }
 
 void Team::UpdateMostPowerful() {
-	StudentPower most_power = this->team_students.getBiggestKey();
-	this->best = most_power;
+	bool empty = false;
+	StudentPower most_power;
+	try {
+		most_power = this->team_students.getBiggestKey();
+	} catch(EmptyTree& e) {
+		this->best = StudentPower(0, 0);
+		empty = true;
+	}
+	if(!empty)
+		this->best = most_power;
+	else
+		this->best = StudentPower(0, 0);
 }
 
 int GetCountInGrade(Student** stud_arr, int len, int grade) {

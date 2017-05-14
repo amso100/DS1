@@ -544,7 +544,7 @@ void AVLTree<Key,Data>::removeNode(AVLTreeNode<Key,Data>* father,bool cond_right
 		removeLeftOneSon(father);
 		return;
 	}
-	removeRightTwoSons(father,route);
+	removeLeftTwoSons(father,route);
 }
 
 template<class Key, class Data>
@@ -567,14 +567,14 @@ void AVLTree<Key, Data>::removeFromTree(Key key) {
 			route.RemoveLast();												//If it's not the root
 			typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
 			if(cond_right){
-				if((*it)->NumOfSons()==2){
+				if((*it)->GetRight()->NumOfSons()==2){
 					removeNode(*it,cond_right,route);
 					handleBF(route,NRemove);
 				}else{
 					removeNode(*it,cond_right,route);
 					handleBF(route,Remove);
 				}
-			}else if((*it)->NumOfSons()==2){
+			}else if((*it)->GetLeft()->NumOfSons()==2){
 				removeNode(*it,cond_right,route);
 				handleBF(route,NRemove);
 			}else{
@@ -596,16 +596,18 @@ void AVLTree<Key, Data>::removeFromTree(Key key) {
 
 template<class Key, class Data>
 Data& AVLTree<Key, Data>::findCurrentNode(AVLTreeNode<Key, Data>* node,
-		Key key) {										//Recursive find in the tree.
+		Key key) {		//Recursive find in the tree.
+	if(node == nullptr)
+		throw NotInTree();
 	if (node->GetKey() == key)
 		return node->GetData();
 	if (!node->GetLeft() && !node->GetRight()) {
 		throw NotInTree();
 	}
 	if (node->GetKey() > key) {
-		return findCurrentNode(node->GetRight(), key);
+		return findCurrentNode(node->GetLeft(), key);
 	}
-	return findCurrentNode(node->GetLeft(), key);
+	return findCurrentNode(node->GetRight(), key);
 }
 
 template<class Key, class Data>
@@ -866,6 +868,8 @@ bool AVLTree<Key, Data>::Exists(Key key) {
 		this->findInTree(key);
 		return true;
 	} catch(NotInTree& e) {
+		return false;
+	} catch(EmptyTree& e) {
 		return false;
 	}
 }
