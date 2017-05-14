@@ -567,14 +567,14 @@ void AVLTree<Key, Data>::removeFromTree(Key key) {
 			route.RemoveLast();												//If it's not the root
 			typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
 			if(cond_right){
-				if((*it)->NumOfSons() > 0){
+				if((*it)->NumOfSons()==2){
 					removeNode(*it,cond_right,route);
 					handleBF(route,NRemove);
 				}else{
 					removeNode(*it,cond_right,route);
 					handleBF(route,Remove);
 				}
-			}else if((*it)->NumOfSons()>0){
+			}else if((*it)->NumOfSons()==2){
 				removeNode(*it,cond_right,route);
 				handleBF(route,NRemove);
 			}else{

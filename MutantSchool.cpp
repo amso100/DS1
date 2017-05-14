@@ -6,6 +6,7 @@
  */
 
 #include "MutantSchool.h"
+#include "exceptions.h"
 
 MutantSchool::MutantSchool() {
 	this->best_all = nullptr;
