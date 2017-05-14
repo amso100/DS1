@@ -175,6 +175,8 @@ Student** NotInGrade(Student** studs_arr, int len, int grade) {
 	return not_in_grade;
 }
 
+StudentPower* PowerInGrade()
+
 Student** MergeByPower(Student** arr1, int len1, Student** arr2, int len2) {
 	Student** res = new Student*[len1 + len2];
 }

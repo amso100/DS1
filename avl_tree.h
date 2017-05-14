@@ -567,8 +567,21 @@ void AVLTree<Key, Data>::removeFromTree(Key key) {
 			}
 			route.RemoveLast();												//If it's not the root
 			typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
-			removeNode(*it,cond_right,route);
-			handleBF(route,Remove);
+			if(cond_right){
+				if((*it)->NumOfSons() > 0){
+					removeNode(*it,cond_right,route);
+					handleBF(route,NRemove);
+				}else{
+					removeNode(*it,cond_right,route);
+					handleBF(route,Remove);
+				}
+			}else if((*it)->NumOfSons()>0){
+				removeNode(*it,cond_right,route);
+				handleBF(route,NRemove);
+			}else{
+				removeNode(*it,cond_right,route);
+				handleBF(route,Remove);
+			}
 			return;
 		}
 		if(key < node->GetKey()){											//If we go left
@@ -614,30 +627,46 @@ void AVLTree<Key, Data>::shiftLL(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<K
 		return;
 	}
 	AVLTreeNode<Key, Data>* temp = node->GetLeft();						//We assign the left son as a temporary node
-	int height= node->GetHeight();
-	if(node->GetHeight() > 1){											//We need to lower the node to be the left node's son, so the height decreases by 2
-	node->SetHeight(height - 2);
-	}
-	else{
-		node->SetHeight(0);												//If it's only the node and it's left son, the height updates
-	}
 
+	if(root == node) {
+		root = temp;
+	}
 
 	node->SetLeft(temp->GetRight());									//Update the pointers
 	temp->SetRight(node);
 
-	if(node->GetLeft()!=nullptr){										//If the node carried a sub tree- reserve the height
-		node->SetHeight(node->GetLeft()->GetHeight()+1);
-		temp->SetHeight(node->GetLeft()->GetHeight()+2);
+
+
+//	if(root->GetKey() == node->GetKey()){								//If it's the root, switch the root with the temp
+//		root = temp;
+//		route.RemoveLast();
+//		route.PushBack(root);
+//		return;
+//	}
+
+	if(node->IsLeaf())
+		node->SetHeight(0);
+	else if(node->GetLeft() == nullptr)
+		node->SetHeight(node->GetRight()->GetHeight() + 1);
+	else if(node->GetRight() == nullptr)
+		node->SetHeight(node->GetLeft()->GetHeight() + 1);
+	else {
+		if(node->GetLeft()->GetHeight() > node->GetRight()->GetHeight())
+			node->SetHeight(node->GetLeft()->GetHeight() + 1);
+		else
+			node->SetHeight(node->GetRight()->GetHeight() + 1);
 	}
 
-	if(root->GetKey() == node->GetKey()){								//If it's the root, switch the root with the temp
-		root = temp;
-		route.RemoveLast();
-		route.PushBack(root);
-		return;
-	}
+	if(temp->GetLeft() == nullptr)
+		temp->SetHeight(temp->GetRight()->GetHeight() + 1);
+	else if(temp->GetRight()->GetHeight() > temp->GetLeft()->GetHeight())
+		temp->SetHeight(temp->GetRight()->GetHeight() + 1);
+	else
+		temp->SetHeight(temp->GetLeft()->GetHeight() + 1);
+
 	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
+	if(root->GetKey() == temp->GetKey())
+		return;
 	it.Prev();															// not root at least 1 previous node
 	if((*it)->GetLeft()!=nullptr){
 		if((*it)->GetLeft()->GetKey() == node->GetKey()){
@@ -660,28 +689,42 @@ void AVLTree<Key, Data>::shiftRR(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<K
 	}
 
 	AVLTreeNode<Key, Data>* temp = node->GetRight();
-	int height= node->GetHeight();
-	if(node->GetHeight() > 1){
-		node->SetHeight(height - 2);
-	}
-	else{
-		node->SetHeight(0);
+
+	if(root == node) {
+		root = temp;
 	}
 
 	node->SetRight(temp->GetLeft());
 	temp->SetLeft(node);
-	if(node->GetRight()!=nullptr){
-		node->SetHeight(node->GetRight()->GetHeight()+1);
-		temp->SetHeight(node->GetRight()->GetHeight()+2);
+	if(node->IsLeaf())
+		node->SetHeight(0);
+	else if(node->GetLeft() == nullptr)
+		node->SetHeight(node->GetRight()->GetHeight() + 1);
+	else if(node->GetRight() == nullptr)
+		node->SetHeight(node->GetLeft()->GetHeight() + 1);
+	else {
+		if(node->GetLeft()->GetHeight() > node->GetRight()->GetHeight())
+			node->SetHeight(node->GetLeft()->GetHeight() + 1);
+		else
+			node->SetHeight(node->GetRight()->GetHeight() + 1);
 	}
 
-	if(root->GetKey() == node->GetKey()){
-		root = temp;
-		route.RemoveLast();
-		route.PushBack(root);
-		return;
-	}
+	if(temp->GetRight() == nullptr)
+		temp->SetHeight(temp->GetLeft()->GetHeight() + 1);
+	else if(temp->GetRight()->GetHeight() > temp->GetLeft()->GetHeight())
+		temp->SetHeight(temp->GetRight()->GetHeight() + 1);
+	else
+		temp->SetHeight(temp->GetLeft()->GetHeight() + 1);
+
+//	if(root->GetKey() == node->GetKey()){
+//		root = temp;
+//		route.RemoveLast();
+//		route.PushBack(root);
+//		return;
+//	}
 	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
+	if(root->GetKey() == temp->GetKey())
+		return;
 	it.Prev();
 	if((*it)->GetLeft()!=nullptr){
 		if((*it)->GetLeft()->GetKey() == node->GetKey()){
@@ -703,8 +746,6 @@ void AVLTree<Key, Data>::shiftRL(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<K
 		return;
 	}
 	route.PushBack(node->GetRight());
-	node->GetRight()->GetLeft()->IncHeight();				//Updates the heights of the nodes,
-	node->GetRight()->IncHeight();
 	shiftLL(node->GetRight(),route);						//First LL the right node with it's left
 	shiftRR(node,route);									//Then RR the father with it's right node
 
@@ -719,8 +760,6 @@ void AVLTree<Key, Data>::shiftLR(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<K
 		return;
 	}
 	route.PushBack(node->GetLeft());
-	node->GetLeft()->GetRight()->IncHeight();
-	node->GetLeft()->IncHeight();
 	shiftRR(node->GetLeft(),route);
 	shiftLL(node,route);
 }
@@ -856,3 +895,5 @@ void AVLTree<Key, Data>::UpdateTreeFromArrays(Key* key_array, int len_key, Data*
 	this->root = next_root;
 	delete arr;
 }
+
+#endif
