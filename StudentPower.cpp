@@ -7,6 +7,8 @@
 
 #include "StudentPower.h"
 
+StudentPower::StudentPower() : student_id(0), power(0) { }
+
 StudentPower::StudentPower(int id, int pow) : student_id(id), power(pow) { }
 
 StudentPower::~StudentPower() { }

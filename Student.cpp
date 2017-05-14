@@ -14,6 +14,8 @@ Student::Student(int id, int grade, int power) {
 	this->power      = power;
 }
 
+Student::~Student() { }
+
 int Student::GetID() {
 	return this->student_id;
 }

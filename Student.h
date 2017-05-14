@@ -12,6 +12,8 @@
  * Class for describing a single student of the school.
  */
 
+#include "exceptions.h"
+
 class Student {
 private:
 	int student_id;

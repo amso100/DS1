@@ -8,7 +8,7 @@
 #ifndef EXCEPTIONS_H_
 #define EXCEPTIONS_H_
 
-class ListException : public std::exception { };
+class ListException { };
 class IteratorAtEnd : public ListException { };
 class IteratorAtStart : public ListException { };
 

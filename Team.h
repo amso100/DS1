@@ -8,8 +8,10 @@
 #ifndef TEAM_H_
 #define TEAM_H_
 
-#include <vector>
 #include "Student.h"
+#include "StudentPower.h"
+#include "avl_tree.h"
+#include "exceptions.h"
 //Include AVL
 
 class Team {
@@ -43,6 +45,10 @@ public:
 	StudentPower MostPowerfulInGroup();
 
 	//Gets a vector of all students in team by their power.
-	StudentPower* GetStudentsByPower();
+	StudentPower* GetStudentsByPower(int* size);
+
+	//Goes over students in the team, and rebuilds the tree of students
+	//without actually updating the powers of the students.
+	void IncreaseLevel(int grade, int inc);
 };
 #endif /* TEAM_H_ */

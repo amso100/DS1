@@ -28,7 +28,7 @@ private:
 	int team_count;
 
 	//The most powerful student in the entire school.
-	Student* best_all;
+	StudentPower best_all;
 
 	//Tree of team_id -> Team
 	AVLTree<int, Team*> school_teams;
@@ -45,6 +45,14 @@ private:
 	//Updates the school's most powerful student.
 	//Called when removing a student, if the removed is the most powerful.
 	void UpdatePowerful();
+
+	int GetCountInGrade(Student** stud_arr, int len, int grade);
+	Student** StudentsOnlyInGrade(Student** stud_arr, int len, int grade);
+	Student** NotInGrade(Student** studs_arr, int len, int grade);
+	StudentPower* PowerInGrade(Student** students, StudentPower* power_arr, int len, int grade);
+	StudentPower* PowerNotGrade(Student** students, StudentPower* power_arr, int len, int grade);
+	Student** MergeStudsByPower(Student** arr1, int len1, Student** arr2, int len2);
+	StudentPower* MergePairsByPower(StudentPower* arr1, int len1, StudentPower* arr2, int len2);
 
 public:
 
@@ -71,7 +79,7 @@ public:
 	void RemoveStudent(int student_id);
 
 	//Returns a vector of all the students in school/team by their power.
-	Student** GetAllStudentsByPower(int team_id);
+	StudentPower* GetAllStudentsByPower(int team_id, int* size);
 
 	//Increases the power of all students in a grade, and their gradde by given amounts. O(n)
 	void IncreaseLevel(int grade, int inc);

@@ -126,18 +126,18 @@ public:
 		if(!node){
 			return;
 		}
-		addValuesToTree(array,*node->left_node);
-		*array = *node->data;
-		addValuesToTree(array+1,*node->right_node);
+		addValuesToTree(array,node->GetLeft());
+		*array = node->GetData();
+		addValuesToTree(array+1,node->GetRight());
 		return;
 	}
 	void addTreeKeys(Key* array, AVLTreeNode<Key, Data>* node) {
 		if(!node){
 			return;
 		}
-		addTreeKeys(array,*node->left_node);
-		*array = *node->key;
-		addTreeKeys(array+1,*node->right_node);
+		addTreeKeys(array,node->GetLeft());
+		*array = node->GetKey();
+		addTreeKeys(array+1,node->GetRight());
 		return;
 	}
 	bool testSearchTree(AVLTreeNode<Key,Data>* node){
@@ -157,18 +157,18 @@ public:
 
 	Key* GetTreeKeys(AVLTreeNode<Key,Data>* node) {
 		if(!node){
-			return false;
+			return nullptr;
 		}
-		Key array[] = new Key[numOfNodes];
+		Key* array = new Key[numOfNodes];
 		addTreeKeys(array,root);
 		return array;
 	}
 
 	Data* GetTreeData(AVLTreeNode<Key,Data>* node){
 		if(!node){
-			return false;
+			return nullptr;
 		}
-		Data array[] = new Data[numOfNodes];
+		Data* array = new Data[numOfNodes];
 		addValuesToTree(array,root);
 		return array;
 	}
@@ -816,7 +816,7 @@ Key AVLTree<Key,Data>::getBiggestKey(){
 		throw EmptyTree();
 	}
 	AVLTreeNode<Key,Data>* node = root;													//travel to the right from the root
-	while(node->right != nullptr){
+	while(node->GetRight() != nullptr){
 		node= node->GetRight();
 	}
 	return node->GetKey();																//Return the key
@@ -875,21 +875,48 @@ AVLTreeNode<Key, Data>* BalancedTreeFromArray(AVLTreeNode<Key, Data>** arr, int 
 	if(start > end)
 		return nullptr;
 	int mid = start + (end - start)/2;
-	AVLTreeNode<Key, Data>* root = new AVLTreeNode<Key, Data>(arr[mid]);
+	AVLTreeNode<Key, Data>* root = new AVLTreeNode<Key, Data>(arr[mid]->GetKey(), arr[mid]->GetData());
 	root->SetLeft(BalancedTreeFromArray(arr, start, mid-1));
 	root->SetRight(BalancedTreeFromArray(arr, mid+1, end));
 	return root;
 }
 
 template<class Key, class Data>
+void SetBalancedTreeHeight(AVLTreeNode<Key, Data>* root) {
+	if(root->IsLeaf()) {
+		root->SetHeight(0);
+	}
+	else if(root == nullptr) {
+		return;
+	}
+	else {
+		SetBalancedTreeHeight(root->GetLeft());
+		SetBalancedTreeHeight(root->GetRight());
+		if(root->GetLeft() == nullptr) {
+			root->SetHeight(root->GetRight()->GetHeight() + 1);
+		}
+		else if(root->GetRight() == nullptr) {
+			root->SetHeight(root->GetLeft()->GetHeight() + 1);
+		}
+		else {
+			if(root->GetLeft()->GetHeight() > root->GetRight()->GetHeight())
+				root->SetHeight(root->GetLeft()->GetHeight());
+			else
+				root->SetHeight(root->GetRight()->GetHeight());
+		}
+	}
+}
+
+template<class Key, class Data>
 void AVLTree<Key, Data>::UpdateTreeFromArrays(Key* key_array, int len_key, Data* data_array, int len_data) {
 	if(len_key != len_data)
 		return;
-	AVLTreeNode<Key, Data>** arr = new AVLTreeNode<Key, Data>**[len_key];
+	AVLTreeNode<Key, Data>** arr = new AVLTreeNode<Key, Data>*[len_key];
 	for(int i = 0; i < len_key; i++) {
 		arr[i] = new AVLTreeNode<Key, Data>(key_array[i], data_array[i]);
 	}
 	AVLTreeNode<Key, Data>* next_root = BalancedTreeFromArray(arr, 0, len_key);
+	SetBalancedTreeHeight(next_root);
 	this->deleteTree(this->root);
 	this->root = next_root;
 	delete arr;

@@ -16,6 +16,7 @@ private:
 	int student_id;
 	int power;
 public:
+	StudentPower();
 	StudentPower(int id, int pow);
 	~StudentPower();
 	int GetID();

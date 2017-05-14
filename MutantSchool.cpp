@@ -9,40 +9,38 @@
 #include "exceptions.h"
 
 MutantSchool::MutantSchool() {
-	this->best_all = nullptr;
+	this->best_all = StudentPower(0, 0);
 	this->student_count = 0;
 	this->team_count = 0;
 }
 
 void MutantSchool::UpdatePowerful() {
 	if(this->student_count == 0)
-		this->best_all = nullptr;
+		this->best_all = StudentPower(0, 0);
 	else
 		this->best_all = this->students_by_power.getBiggestKey();
 }
 
-MutantSchool::~MutantSchool() {
-	this->best_all = nullptr;
-}
+MutantSchool::~MutantSchool() { }
 
 void MutantSchool::AddStudent(int id, int grade, int power) {
 	if(id <= 0 || grade <= 0 || power <= 0)
 		throw InvalidInput();
 	Student* create = nullptr;
-	StudentPower cre_pair = nullptr;
+	StudentPower cre_pair;
 	try {
 		if(this->students_by_id.Exists(id))
 			throw Failure();
 		create = new Student(id, grade, power);
-		cre_pair = new StudentPower(id, power);
+		cre_pair = StudentPower(id, power);
 		this->students_by_id.insertToTree(id, create);
 		this->students_by_power.insertToTree(cre_pair, create);
 		this->student_count++;
-		if(this->best_all == nullptr)
-			this->best_all = create;
+		if(this->student_count == 0)
+			this->best_all = StudentPower(id, power);
 		else
-			if(this->best_all->GetPower() < power)
-				this->best_all = create;
+			if(this->best_all.GetPower() < power)
+				this->best_all = StudentPower(id, power);
 
 	} catch(std::bad_alloc& e) {
 		throw AllocationError();
@@ -87,8 +85,8 @@ void MutantSchool::MoveStudentToTeam(int stud_id, int team_id) {
 int MutantSchool::GetMostPowerful(int team_id) {
 
 	if(team_id < 0)
-		if(this->best_all != nullptr)
-			return this->best_all->GetID();
+		if(this->student_count > 0)
+			return this->best_all.GetID();
 		else
 			throw Failure();
 	else if(team_id == 0)
@@ -97,7 +95,7 @@ int MutantSchool::GetMostPowerful(int team_id) {
 		if(this->school_teams.Exists(team_id) == false)
 			throw Failure();
 		Team* request_team = this->school_teams.findInTree(team_id);
-		if(request_team->MostPowerfulInGroup() == nullptr)
+		if(request_team->GetSize() == 0)
 			throw Failure();
 		return request_team->MostPowerfulInGroup().GetID();
 	}
@@ -110,7 +108,6 @@ void MutantSchool::RemoveStudent(int stud_id) {
 		throw Failure();
 
 	Student* remove = this->students_by_id.findInTree(stud_id);
-	int rem_power = remove->GetPower();
 	Team* rem_team = nullptr;
 	if(this->student_teams.Exists(stud_id) == false) //Check if the student was in a team
 		rem_team = nullptr;
@@ -123,25 +120,25 @@ void MutantSchool::RemoveStudent(int stud_id) {
 	this->students_by_power.removeFromTree(rem_pow); //Removing from tree of power->Student
 	this->student_teams.removeFromTree(stud_id);                //Removing from tree of student->team
 	this->student_count--;
-	if(this->best_all->GetID() == stud_id)                      //If the removed student was also the best.
+	if(this->best_all.GetID() == stud_id)                      //If the removed student was also the best.
 		this->UpdatePowerful(); //Update the next most powerful student.
 	delete remove;
 }
 
-Student** MutantSchool::GetAllStudentsByPower(int team_id) {
+StudentPower* MutantSchool::GetAllStudentsByPower(int team_id, int* size) {
 	if(team_id == 0)
 		throw Failure();
 	else if(team_id < 0)
-		return this->students_by_power.ReverseInorderData();
+		return this->students_by_power.ReverseInorderKeys();
 	else {
 		if(this->school_teams.Exists(team_id) == false)
 			throw Failure();
 		Team* get_all = this->school_teams.findInTree(team_id);
-		return get_all->GetStudentsByPower();
+		return get_all->GetStudentsByPower(size);
 	}
 }
 
-int GetCountInGrade(Student** stud_arr, int len, int grade) {
+int MutantSchool::GetCountInGrade(Student** stud_arr, int len, int grade) {
 	int count = 0;
 	for(int i = 0; i < len; i++) {
 		if(stud_arr[i]->GetGrade() == grade)
@@ -150,7 +147,7 @@ int GetCountInGrade(Student** stud_arr, int len, int grade) {
 	return count;
 }
 
-Student** StudentsOnlyInGrade(Student** stud_arr, int len, int grade) {
+Student** MutantSchool::StudentsOnlyInGrade(Student** stud_arr, int len, int grade) {
 	int in_grade = GetCountInGrade(stud_arr, len, grade);
 	Student** only_in_grade = new Student*[in_grade];
 	int place = 0; // place < in_grade
@@ -163,7 +160,7 @@ Student** StudentsOnlyInGrade(Student** stud_arr, int len, int grade) {
 	return only_in_grade;
 }
 
-Student** NotInGrade(Student** studs_arr, int len, int grade) {
+Student** MutantSchool::NotInGrade(Student** studs_arr, int len, int grade) {
 	int in_grade = GetCountInGrade(studs_arr, len, grade);
 	Student** not_in_grade = new Student*[len - in_grade];
 	int place = 0;
@@ -176,10 +173,62 @@ Student** NotInGrade(Student** studs_arr, int len, int grade) {
 	return not_in_grade;
 }
 
-StudentPower* PowerInGrade()
+StudentPower* MutantSchool::PowerInGrade(Student** students, StudentPower* power_arr, int len, int grade) {
+	int in_grade = GetCountInGrade(students, len, grade);
+	StudentPower* power_in_grade = new StudentPower[in_grade];
+	int place = 0;
+	for(int i = 0; i < len; i++) {
+		if(students[i]->GetGrade() == grade) {
+			power_in_grade[place] = power_arr[i];
+			place++;
+		}
+	}
+	return power_in_grade;
+}
 
-Student** MergeByPower(Student** arr1, int len1, Student** arr2, int len2) {
+StudentPower* MutantSchool::PowerNotGrade(Student** students, StudentPower* power_arr, int len, int grade) {
+	int in_grade = GetCountInGrade(students, len, grade);
+	StudentPower* power_in_grade = new StudentPower[len - in_grade];
+	int place = 0;
+	for(int i = 0; i < len; i++) {
+		if(students[i]->GetGrade() != grade) {
+			power_in_grade[place] = power_arr[i];
+			place++;
+		}
+	}
+	return power_in_grade;
+}
+
+Student** MutantSchool::MergeStudsByPower(Student** arr1, int len1, Student** arr2, int len2) {
 	Student** res = new Student*[len1 + len2];
+	int i1 = 0, i2 = 0, i3 = 0;
+	while(i1 != len1 && i2 != len2) {
+		if(arr1[i1]->GetPower() > arr2[i2]->GetPower())
+			res[i3++] = arr1[i1++];
+		else
+			res[i3++] = arr2[i2++];
+	}
+	while(i1 < len1)
+		res[i3++] = arr1[i1++];
+	while(i2 < len2)
+		res[i3++] = arr2[i2++];
+	return res;
+}
+
+StudentPower* MutantSchool::MergePairsByPower(StudentPower* arr1, int len1, StudentPower* arr2, int len2) {
+	StudentPower* res = new StudentPower[len1 + len2];
+	int i1 = 0, i2 = 0, i3 = 0;
+	while(i1 != len1 && i2 != len2) {
+		if(arr1[i1].GetPower() > arr2[i2].GetPower())
+			res[i3++] = arr1[i1++];
+		else
+			res[i3++] = arr2[i2++];
+	}
+	while(i1 < len1)
+		res[i3++] = arr1[i1++];
+	while(i2 < len2)
+		res[i3++] = arr2[i2++];
+	return res;
 }
 
 //Solution does not currently meet the required complexity
@@ -191,10 +240,21 @@ void MutantSchool::IncreaseLevel(int grade, int inc) {
 	int grade_count = GetCountInGrade(studs_arr, this->student_count, grade);
 	Student** grade_arr = StudentsOnlyInGrade(studs_arr, grade_count, grade);
 	Student** not_grade = NotInGrade(studs_arr, this->student_count, grade);
-	//Split StudentPower array as well
-	//Merge both pairs of arrays in parallel, or do one and the other as a key for which to take.
-	//Insert both merged arrays into the AllPowers tree.
-	//Do the same for every team that needs this as well, and explain why it is O(n+k) total.
+	StudentPower* grade_power = PowerInGrade(studs_arr, power_arr, this->student_count, grade);
+	StudentPower* not_pow_grade = PowerNotGrade(studs_arr, power_arr, this->student_count, grade);
+	for(int i = 0; i < grade_count; i++) {
+		grade_arr[i]->UpdatePower(inc);
+		grade_power[i].SetPower(inc);
+	}
+	Student** updated_studs = MergeStudsByPower(grade_arr, grade_count, not_grade, this->student_count-grade_count);
+	StudentPower* updated_pairs = MergePairsByPower(grade_power, grade_count, not_pow_grade, this->student_count - grade_count);
+	this->students_by_power.UpdateTreeFromArrays(updated_pairs, this->student_count, updated_studs, this->student_count);
+
+	//Do for every team as well.
+	Team** all_teams = this->school_teams.ReverseInorderData();
+	for(int i = 0; i < this->school_teams.size(); i++) {
+		all_teams[i]->IncreaseLevel(grade, inc);
+	}
 }
 //	if(grade <= 0 || inc <= 0)
 //		throw Failure();

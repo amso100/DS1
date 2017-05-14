@@ -8,6 +8,13 @@
 #include <iostream>
 #include "MutantSchool.h"
 #include "exceptions.h"
+#include "Student.h"
+
+void PrintStudentArray(StudentPower* arr, int len) {
+	for(int i = 0; i < len; i++) {
+		std::cout << "ID: " << arr[i].GetID() << "\tPower: " << arr[i].GetPower() << std::endl;
+	}
+}
 
 int main() {
 	MutantSchool school;
@@ -155,19 +162,64 @@ int main() {
 	}
 	std::cout << "Removing student number 8...";
 	school.RemoveStudent(8);
-	if (school.GetMostPowerful(1) == 8) {
-		std::cout << "Bad" << std::endl;
-	} else {
-		std::cout << "Good" << std::endl;
+	school.GetMostPowerful(1);
+
+	try {
+		std::cout << "Getting all students by power from team 1" << std::endl;
+		int x = 0;
+		StudentPower* by_power1 = school.GetAllStudentsByPower(1, &x);
+		PrintStudentArray(by_power1, x);
+	} catch(Failure& e) {
+		std::cout << "Error getting by power from team 1.\n";
 	}
-	school.GetAllStudentsByPower(1);
-	school.GetAllStudentsByPower(5);
-	school.GetAllStudentsByPower(2);
-	school.RemoveStudent(4);
-	school.GetAllStudentsByPower(2);
-	school.IncreaseLevel(1, 5);
-	school.GetMostPowerful(4);
-	school.MoveStudentToTeam(5, 4);
-	school.GetMostPowerful(4);
+	try {
+		std::cout << "Getting all students by power from team 5" << std::endl;
+		int x = 0;
+		StudentPower* by_power2 = school.GetAllStudentsByPower(5, &x);
+		PrintStudentArray(by_power2, x);
+	} catch(Failure& e) {
+		std::cout << "Error getting by power from team 5.\n";
+	}
+	try {
+		std::cout << "Getting all students by power from team 2" << std::endl;
+		int x = 0;
+		StudentPower* by_power2 = school.GetAllStudentsByPower(2, &x);
+		PrintStudentArray(by_power2, x);
+	} catch(Failure& e) {
+		std::cout << "Error getting by power from team 2.\n";
+	}
+	try {
+		std::cout << "Removing student 4 from system...\n";
+		school.RemoveStudent(4);
+	} catch(...) {
+		std::cout << "Error removing student 4.\n";
+	}
+	try {
+		std::cout << "Getting all students by power from team 2" << std::endl;
+		int x = 0;
+		StudentPower* by_power2 = school.GetAllStudentsByPower(2, &x);
+		PrintStudentArray(by_power2, x);
+	} catch(Failure& e) {
+		std::cout << "Error getting by power from team 2.\n";
+	}
+	try {
+		std::cout << "Increase power to all in grade 1 to power=5\n";
+		school.IncreaseLevel(1, 5);
+		std::cout << "Power increased.\n";
+	} catch(...) {
+		std::cout << "Error increasing power.\n";
+	}
+	try {
+		school.GetMostPowerful(4);
+	} catch(...) {
+		std::cout << "Error getting most powerful in group 4.\n";
+	}
+	try {
+		std::cout << "Moving student 5 to team 4.\n";
+		school.MoveStudentToTeam(5, 4);
+	} catch(...) {
+		std::cout << "Error moving student 5 to team 4.\n";
+	}
+	std::cout << "Most powerful in group 4: " << school.GetMostPowerful(4) << std::endl;
 	//Quit
 }
