@@ -369,13 +369,13 @@ RollStatus AVLTreeNode<Key, Data>::GetStatus() {
 /////////// AvlTree functions///////////////////////
 template <class Key,class Data>
 AVLTree<Key,Data>::AVLTree():numOfNodes(0){
-	this->root = NULL;
+	this->root = nullptr;
 }
 
 template<class Key, class Data>
 AVLTree<Key, Data>::~AVLTree() {
 	deleteTree(this->root);
-	this->root = NULL;
+	this->root = nullptr;
 }
 
 template<class Key, class Data>
@@ -390,6 +390,8 @@ void AVLTree<Key, Data>::deleteTree(AVLTreeNode<Key, Data>* root) {
 	}
 	deleteTree(root->GetLeft());
 	deleteTree(root->GetRight());
+	root->SetLeft(nullptr);
+	root->SetRight(nullptr);
 	delete root;
 }
 
@@ -439,9 +441,11 @@ void AVLTree<Key, Data>::insertToTree(Key key, Data data) {
 
 template<class Key, class Data>
 void AVLTree<Key,Data>::removeRoot(List<AVLTreeNode<Key,Data>*> route){
+	bool removeRight=false;
 	if(root->IsLeaf()){
 		delete root;
 		root = nullptr;
+		route.RemoveLast();
 		return;
 	}
 	AVLTreeNode<Key,Data>* temp = root;									//If the root has 1 son, it's either the root and the right
@@ -450,11 +454,15 @@ void AVLTree<Key,Data>::removeRoot(List<AVLTreeNode<Key,Data>*> route){
 			temp = temp->GetLeft();
 			delete root;
 			root = temp;
+			temp->SetHeight(0);
+			route.RemoveLast();
 		}
 		else {
 			temp = temp->GetRight();
 			delete root;
 			root = temp;
+			temp->SetHeight(0);
+			route.RemoveLast();
 		}
 	}
 	else {
@@ -464,16 +472,18 @@ void AVLTree<Key,Data>::removeRoot(List<AVLTreeNode<Key,Data>*> route){
 		while(temp->GetRight()!=nullptr){									//Loop until we get to the last right node possible
 			temp = temp->GetRight();
 			route.PushBack(temp);
+			removeRight=true;
 		}
 		route.RemoveLast();													//Switch the nodes
 		int height = root->GetHeight();
-		temp->SetRight(root->GetRight());
-		temp->SetLeft(root->GetLeft());
+		AVLTreeNode<Key,Data>* left = root->GetLeft();
+		AVLTreeNode<Key,Data>* right= root->GetRight();
 		*(root) = *temp;
+		root->SetLeft(left);
+		root->SetRight(right);
 		root->SetHeight(height);
 		typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
-		delete temp;
-		(*it)->SetRight(nullptr);
+		removeNode(*it,removeRight,route);
 	}
 }
 
@@ -958,12 +968,14 @@ AVLTreeNode<Key, Data>* BalancedTreeFromArray(AVLTreeNode<Key, Data>** arr, int 
 
 template<class Key, class Data>
 void SetBalancedTreeHeight(AVLTreeNode<Key, Data>* root) {
-	if(root->IsLeaf()) {
+
+	if(root == nullptr) {
+			return;
+	}
+	else if(root->IsLeaf()) {
 		root->SetHeight(0);
 	}
-	else if(root == nullptr) {
-		return;
-	}
+
 	else {
 		SetBalancedTreeHeight(root->GetLeft());
 		SetBalancedTreeHeight(root->GetRight());
@@ -975,9 +987,9 @@ void SetBalancedTreeHeight(AVLTreeNode<Key, Data>* root) {
 		}
 		else {
 			if(root->GetLeft()->GetHeight() > root->GetRight()->GetHeight())
-				root->SetHeight(root->GetLeft()->GetHeight());
+				root->SetHeight(root->GetLeft()->GetHeight() + 1);
 			else
-				root->SetHeight(root->GetRight()->GetHeight());
+				root->SetHeight(root->GetRight()->GetHeight() + 1);
 		}
 	}
 }
@@ -990,10 +1002,14 @@ void AVLTree<Key, Data>::UpdateTreeFromArrays(Key* key_array, int len_key, Data*
 	for(int i = 0; i < len_key; i++) {
 		arr[i] = new AVLTreeNode<Key, Data>(key_array[i], data_array[i]);
 	}
-	AVLTreeNode<Key, Data>* next_root = BalancedTreeFromArray(arr, 0, len_key);
+	AVLTreeNode<Key, Data>* next_root = BalancedTreeFromArray(arr, 0, len_key-1);
 	SetBalancedTreeHeight(next_root);
 	this->deleteTree(this->root);
 	this->root = next_root;
+	for(int i = 0; i < len_key; i++) {
+		if(!arr[i])
+			delete arr[i];
+	}
 	delete arr;
 }
 

@@ -12,6 +12,8 @@ Team::Team(int id) {
 	this->team_size = 0;
 }
 
+Team::~Team() { }
+
 int Team::GetSize() {
 	return this->team_size;
 }
@@ -21,7 +23,7 @@ int Team::GetID() {
 }
 
 void Team::AddStudent(Student* student) {
-	if(student->GetID() == 0 || student->GetGrade() == 0 || student->GetPower() == 0)
+	if(student->GetID() == 0 || student->GetGrade() < 0 || student->GetPower() == 0)
 		throw InvalidInput();
 	try {
 		//First, add student to tree of students in team.
@@ -57,6 +59,7 @@ StudentPower* Team::GetStudentsByPower(int* size) {
 	StudentPower* temp = this->team_students.InorderKeys();
 	StudentPower* arr = this->ReverseArray(temp, this->team_size);
 	*size = this->team_size;
+	delete[] temp;
 	return arr;
 }
 
@@ -93,7 +96,7 @@ Student** Team::ReverseStudents(Student** arr, int len) {
 	return reverse;
 }
 
-int GetCountInGrade(Student** stud_arr, int len, int grade) {
+int Team::GetCountInGrade(Student** stud_arr, int len, int grade) {
 	int count = 0;
 	for(int i = 0; i < len; i++) {
 		if(stud_arr[i]->GetGrade() == grade)
@@ -102,11 +105,11 @@ int GetCountInGrade(Student** stud_arr, int len, int grade) {
 	return count;
 }
 
-Student** StudentsOnlyInGrade(Student** stud_arr, int len, int grade) {
-	int in_grade = GetCountInGrade(stud_arr, len, grade);
+Student** Team::StudentsOnlyInGrade(Student** stud_arr, int len, int grade) {
+	int in_grade = GetCountInGrade(stud_arr, this->team_size, grade);
 	Student** only_in_grade = new Student*[in_grade];
 	int place = 0; // place < in_grade
-	for(int i = 0; i < len; i++) {
+	for(int i = 0; i < this->team_size; i++) {
 		if(stud_arr[i]->GetGrade() == grade) {
 			only_in_grade[place] = stud_arr[i];
 			place++;
@@ -115,11 +118,11 @@ Student** StudentsOnlyInGrade(Student** stud_arr, int len, int grade) {
 	return only_in_grade;
 }
 
-Student** NotInGrade(Student** studs_arr, int len, int grade) {
-	int in_grade = GetCountInGrade(studs_arr, len, grade);
+Student** Team::NotInGrade(Student** studs_arr, int len, int grade) {
+	int in_grade = GetCountInGrade(studs_arr, this->team_size, grade);
 	Student** not_in_grade = new Student*[len - in_grade];
 	int place = 0;
-	for(int i = 0; i < len; i++) {
+	for(int i = 0; i < this->team_size; i++) {
 		if(studs_arr[i]->GetGrade() != grade) {
 			not_in_grade[place] = studs_arr[i];
 			place++;
@@ -128,11 +131,11 @@ Student** NotInGrade(Student** studs_arr, int len, int grade) {
 	return not_in_grade;
 }
 
-StudentPower* PowerInGrade(Student** students, StudentPower* power_arr, int len, int grade) {
-	int in_grade = GetCountInGrade(students, len, grade);
+StudentPower* Team::PowerInGrade(Student** students, StudentPower* power_arr, int len, int grade) {
+	int in_grade = GetCountInGrade(students, this->team_size, grade);
 	StudentPower* power_in_grade = new StudentPower[in_grade];
 	int place = 0;
-	for(int i = 0; i < len; i++) {
+	for(int i = 0; i < this->team_size; i++) {
 		if(students[i]->GetGrade() == grade) {
 			power_in_grade[place] = power_arr[i];
 			place++;
@@ -141,11 +144,11 @@ StudentPower* PowerInGrade(Student** students, StudentPower* power_arr, int len,
 	return power_in_grade;
 }
 
-StudentPower* PowerNotGrade(Student** students, StudentPower* power_arr, int len, int grade) {
-	int in_grade = GetCountInGrade(students, len, grade);
+StudentPower* Team::PowerNotGrade(Student** students, StudentPower* power_arr, int len, int grade) {
+	int in_grade = GetCountInGrade(students, this->team_size, grade);
 	StudentPower* power_in_grade = new StudentPower[len - in_grade];
 	int place = 0;
-	for(int i = 0; i < len; i++) {
+	for(int i = 0; i < this->team_size; i++) {
 		if(students[i]->GetGrade() != grade) {
 			power_in_grade[place] = power_arr[i];
 			place++;
@@ -154,7 +157,7 @@ StudentPower* PowerNotGrade(Student** students, StudentPower* power_arr, int len
 	return power_in_grade;
 }
 
-Student** MergeStudsByPower(Student** arr1, int len1, Student** arr2, int len2) {
+Student** Team::MergeStudsByPower(Student** arr1, int len1, Student** arr2, int len2) {
 	Student** res = new Student*[len1 + len2];
 	int i1 = 0, i2 = 0, i3 = 0;
 	while(i1 != len1 && i2 != len2) {
@@ -170,7 +173,7 @@ Student** MergeStudsByPower(Student** arr1, int len1, Student** arr2, int len2) 
 	return res;
 }
 
-StudentPower* MergePairsByPower(StudentPower* arr1, int len1, StudentPower* arr2, int len2) {
+StudentPower* Team::MergePairsByPower(StudentPower* arr1, int len1, StudentPower* arr2, int len2) {
 	StudentPower* res = new StudentPower[len1 + len2];
 	int i1 = 0, i2 = 0, i3 = 0;
 	while(i1 != len1 && i2 != len2) {
@@ -188,18 +191,31 @@ StudentPower* MergePairsByPower(StudentPower* arr1, int len1, StudentPower* arr2
 
 
 void Team::IncreaseLevel(int grade, int inc) {
-	StudentPower* temp = this->team_students.InorderKeys();
-	StudentPower* power_arr = this->ReverseArray(temp, this->team_size);
-	delete temp;
-	Student**     temp2 = this->team_students.InorderData();
-	Student**     studs_arr = this->ReverseStudents(temp2, this->team_size);
-	delete temp2;
+	//StudentPower* temp = this->team_students.InorderKeys();
+	StudentPower* power_arr = this->team_students.InorderKeys();//this->ReverseArray(temp, this->team_size);
+	//delete[] temp;
+	//Student**     temp2 = this->team_students.InorderData();
+	Student**     studs_arr = this->team_students.InorderData();//this->ReverseStudents(temp2, this->team_size);
+	//delete[] temp2;
 	int grade_count = GetCountInGrade(studs_arr, this->team_size, grade);
 	Student** grade_arr = StudentsOnlyInGrade(studs_arr, grade_count, grade);
 	Student** not_grade = NotInGrade(studs_arr, this->team_size, grade);
 	StudentPower* grade_power = PowerInGrade(studs_arr, power_arr, this->team_size, grade);
 	StudentPower* not_pow_grade = PowerNotGrade(studs_arr, power_arr, this->team_size, grade);
+	for(int i = 0; i < grade_count; i++) {
+		grade_power[i].SetPower(inc);
+	}
 	Student** updated_studs = MergeStudsByPower(grade_arr, grade_count, not_grade, this->team_size-grade_count);
 	StudentPower* updated_pairs = MergePairsByPower(grade_power, grade_count, not_pow_grade, this->team_size - grade_count);
 	this->team_students.UpdateTreeFromArrays(updated_pairs, this->team_size, updated_studs, this->team_size);
+
+	delete[] power_arr;
+	delete[] studs_arr;
+	delete[] grade_arr;
+	delete[] not_grade;
+	delete[] grade_power;
+	delete[] not_pow_grade;
+	delete[] updated_studs;
+	delete[] updated_pairs;
+
 }

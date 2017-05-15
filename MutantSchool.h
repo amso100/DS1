@@ -83,7 +83,9 @@ public:
 	void RemoveStudent(int student_id);
 
 	//Returns a vector of all the students in school/team by their power.
-	StudentPower* GetAllStudentsByPower(int team_id, int* size);
+	StudentPower* GetAllStudentsByPower(int team_id, int* size, int x);
+
+	int* GetAllStudentsByPower(int team_id, int* size);
 
 	//Increases the power of all students in a grade, and their gradde by given amounts. O(n)
 	void IncreaseLevel(int grade, int inc);

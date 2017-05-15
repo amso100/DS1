@@ -65,8 +65,9 @@ int main() {
 	}
 	std::cout << "Finished adding teams.\n";
 
-	school.GetAllStudentsByPower(2, &y);
+	StudentPower* arr = school.GetAllStudentsByPower(2, &y);
 	std::cout << "size of team 2: " << y << std::endl;
+	delete[] arr;
 
 	for (int n = 1; n < 4; n++) {
 		std::cout << "Moving Student " << n << " to Group 1...";
@@ -92,6 +93,7 @@ int main() {
 	StudentPower* arr1 = school.GetAllStudentsByPower(2, &y);
 	std::cout << "size of team 2: " << y << std::endl;
 	PrintStudentArray(arr1, y);
+	delete[] arr1;
 
 	std::cout << "Moving Student " << 4 << " to Group 3...";
 	try {
@@ -104,6 +106,7 @@ int main() {
 	arr1 = school.GetAllStudentsByPower(2, &y);
 	std::cout << "size of team 2: " << y << std::endl;
 	PrintStudentArray(arr1, y);
+	delete[] arr1;
 
 	std::cout << "Moving Student " << 6 << " to Group 2...";
 	try {
@@ -116,6 +119,7 @@ int main() {
 	arr1 = school.GetAllStudentsByPower(2, &y);
 	std::cout << "size of team 2: " << y << std::endl;
 	PrintStudentArray(arr1, y);
+	delete[] arr1;
 
 	std::cout << "Moving Student " << 7 << " to Group 1...";
 	try {
@@ -135,6 +139,7 @@ int main() {
 	arr1 = school.GetAllStudentsByPower(2, &y);
 	std::cout << "size of team 2: " << y << std::endl;
 	PrintStudentArray(arr1, y);
+	delete[] arr1;
 
 	for (int j = 3; j < 6; j++) {
 		std::cout << "Adding team number " << j << "....";
@@ -152,6 +157,7 @@ int main() {
 	arr1 = school.GetAllStudentsByPower(2, &y);
 	std::cout << "size of team 2: " << y << std::endl;
 	PrintStudentArray(arr1, y);
+	delete[] arr1;
 
 	std::cout << "Moving Student " << 8 << " to Group 4...";
 	try {
@@ -182,13 +188,15 @@ int main() {
 
 	arr1 = school.GetAllStudentsByPower(2, &y);
 	std::cout << "size of team 2: " << y << std::endl;
-	PrintStudentArray(arr1, y);;
+	PrintStudentArray(arr1, y);
+	delete[] arr1;
 
 	std::cout << "Moving student number 8 to team 1" << std::endl;
 	school.MoveStudentToTeam(8, 1);
 
-	school.GetAllStudentsByPower(2, &y);
-		std::cout << "size of team 2: " << y << std::endl;
+	arr1 = school.GetAllStudentsByPower(2, &y);
+	std::cout << "size of team 2: " << y << std::endl;
+	delete[] arr1;
 
 	std::cout << "Moving student number 7 to team 2" << std::endl;
 	school.MoveStudentToTeam(7, 2);
@@ -196,6 +204,7 @@ int main() {
 	arr1 = school.GetAllStudentsByPower(2, &y);
 	std::cout << "size of team 2: " << y << std::endl;
 	PrintStudentArray(arr1, y);
+	delete[] arr1;
 
 	std::cout << "Getting the strongest in Team 1....";
 	std::cout << "Strongest: " << school.GetMostPowerful(1) << std::endl;
@@ -225,6 +234,7 @@ int main() {
 		int x = 0;
 		StudentPower* by_power1 = school.GetAllStudentsByPower(1, &x);
 		PrintStudentArray(by_power1, x);
+		delete[] by_power1;
 	} catch(Failure& e) {
 		std::cout << "Error getting by power from team 1.\n";
 	}
@@ -233,6 +243,7 @@ int main() {
 		int x = 0;
 		StudentPower* by_power2 = school.GetAllStudentsByPower(5, &x);
 		PrintStudentArray(by_power2, x);
+		delete[] by_power2;
 	} catch(Failure& e) {
 		std::cout << "Error getting by power from team 5.\n";
 	}
@@ -241,6 +252,7 @@ int main() {
 		int x = 0;
 		StudentPower* by_power2 = school.GetAllStudentsByPower(2, &x);
 		PrintStudentArray(by_power2, x);
+		delete[] by_power2;
 	} catch(Failure& e) {
 		std::cout << "Error getting by power from team 2.\n";
 	}
@@ -255,6 +267,7 @@ int main() {
 		int x = 0;
 		StudentPower* by_power2 = school.GetAllStudentsByPower(2, &x);
 		PrintStudentArray(by_power2, x);
+		delete[] by_power2;
 	} catch(Failure& e) {
 		std::cout << "Error getting by power from team 2.\n";
 	}
@@ -266,9 +279,40 @@ int main() {
 		std::cout << "Error increasing power.\n";
 	}
 	try {
-		school.GetMostPowerful(4);
+		std::cout << "Printing all in group 4...\n";
+		int x = 0;
+		StudentPower* power = school.GetAllStudentsByPower(4, &x);
+		PrintStudentArray(power, x);
+		delete[] power;
 	} catch(...) {
 		std::cout << "Error getting most powerful in group 4.\n";
+	}
+	try {
+		std::cout << "Printing all in gorup 1...\n";
+		int x = 0;
+		StudentPower* power = school.GetAllStudentsByPower(1, &x);
+		PrintStudentArray(power, x);
+		delete[] power;
+	} catch(...) {
+		std::cout << "Error getting all in group 1.\n";
+	}
+	try {
+		std::cout << "Printing all in gorup 2...\n";
+		int x = 0;
+		StudentPower* power = school.GetAllStudentsByPower(2, &x);
+		PrintStudentArray(power, x);
+		delete[] power;
+	} catch(...) {
+		std::cout << "Error getting all in group 2.\n";
+	}
+	try {
+		std::cout << "Printing all in gorup 5...\n";
+		int x = 0;
+		StudentPower* power = school.GetAllStudentsByPower(5, &x);
+		PrintStudentArray(power, x);
+		delete[] power;
+	} catch(...) {
+		std::cout << "Error getting all in group 5.\n";
 	}
 	try {
 		std::cout << "Moving student 5 to team 4.\n";
