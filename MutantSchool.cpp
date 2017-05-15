@@ -49,6 +49,8 @@ void MutantSchool::AddStudent(int id, int grade, int power) {
 	} catch(std::bad_alloc& e) {
 		throw AllocationError();
 	}
+	std::cout<<std::endl;
+	this->students_by_id.PrintInorder();
 }
 
 void MutantSchool::AddTeam(int id) {
@@ -88,6 +90,8 @@ void MutantSchool::MoveStudentToTeam(int stud_id, int team_id) {
 	}
 	dest->AddStudent(student);
 	this->student_teams.insertToTree(stud_id, dest);
+	std::cout<<std::endl;
+	this->student_teams.PrintInorder();
 }
 
 int MutantSchool::GetMostPowerful(int team_id) {

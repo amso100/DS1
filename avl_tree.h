@@ -42,6 +42,8 @@ public:
 	void SetRight(AVLTreeNode<Key, Data>* right); //Sets the right node
 	int NumOfSons();							  //Returns the number of sons the node has
 	void SetHeight(int height);					  //Sets the Height of a node
+	int GetHeightLeft();						  //Gets the height of the left node
+	int GetHeightRight();						  //Gets the height of the right node, -1 if doesn't exist
 	void IncHeight();                   		  //Increases the Height of the node by 1
 	void SubHeight();                    	 	  //Decreases the height of the node by 1
 	int BalanceFactor();                 	      //Returns the balance factor of the node
@@ -72,7 +74,7 @@ public:
  */
 template<class Key,class Data>
 class AVLTree{
-	enum TreeStatus{ Add,Remove,NAdd,NRemove};
+	enum TreeStatus{ Add,Remove,NAdd};
 	int numOfNodes;
 	AVLTreeNode<Key, Data>* root;
 
@@ -214,6 +216,22 @@ AVLTreeNode<Key, Data>::AVLTreeNode(const AVLTreeNode<Key, Data>& avl) {
 	this->left_node   = avl.left_node;
 	this->right_node  = avl.right_node;
 	this->height      = avl.height;
+}
+
+template <class Key,class Data>
+int AVLTreeNode<Key,Data>::GetHeightLeft() {
+	if(this->left_node == nullptr){
+		return 0;
+	}
+	return this->left_node->GetHeight();
+}
+
+template <class Key,class Data>
+int AVLTreeNode<Key,Data>::GetHeightRight() {
+	if(this->right_node == nullptr){
+		return 0;
+	}
+	return this->right_node->GetHeight();
 }
 
 template <class Key,class Data>
@@ -396,7 +414,7 @@ void AVLTree<Key, Data>::insertToTree(Key key, Data data) {
 		}
 		if(root==nullptr){
 			root = new AVLTreeNode<Key,Data>(key,data);
-			handleBF(route, Add);
+			handleBF(route,Add);
 		}
 }
 
@@ -452,16 +470,18 @@ void AVLTree<Key,Data>::removeLeftLeaf(AVLTreeNode<Key,Data>* father){
 
 template<class Key, class Data>
 void AVLTree<Key,Data>::removeRightOneSon(AVLTreeNode<Key,Data>* father){
-	AVLTreeNode<Key,Data>* temp = father->GetRight();				//If the node has one leaf, we connect the father to it's sub-tree
+	AVLTreeNode<Key,Data>* temp = father->GetRight();	//If the node has one leaf, we connect the father to it's sub-tree
+	if(father->GetLeft()!=nullptr){
+		if(father->GetRight()->GetHeight() >= father->GetLeft()->GetHeight()){
+			father->SubHeight();
+		}
+	}
 	if(temp->GetRight() == nullptr){								//and delete the node
 		father->SetRight(temp->GetLeft());
 		delete temp;
 		return;
 	}
 	father->SetRight(temp->GetRight());
-	if(father->GetLeft()->GetHeight()==0){							//From AVL tree, right side must contain node
-		father->SetHeight(1);										//We decrease the height
-	}
 	delete temp;
 	return;
 }
@@ -469,21 +489,24 @@ void AVLTree<Key,Data>::removeRightOneSon(AVLTreeNode<Key,Data>* father){
 template<class Key, class Data>
 void AVLTree<Key,Data>::removeLeftOneSon(AVLTreeNode<Key,Data>* father){
 	AVLTreeNode<Key,Data>* temp = father->GetLeft();				//In an AVL tree if the node contains one son, the son is a leaf.
+	if(father->GetRight()!=nullptr){
+		if(father->GetRight()->GetHeight() <= father->GetLeft()->GetHeight()){
+			father->SubHeight();
+		}
+	}
 	if(temp->GetRight() == nullptr){
 		father->SetLeft(temp->GetLeft());
 		delete temp;
 		return;
 	}
 	father->SetLeft(temp->GetRight());
-	if(father->GetRight()->GetHeight()==0){							//From AVL tree, right side must contain node
-		father->SetHeight(1);										//We decrease the height
-	}
 	delete temp;
 	return;
 }
 
 template<class Key, class Data>
 void AVLTree<Key,Data>::removeRightTwoSons(AVLTreeNode<Key,Data>* father,List<AVLTreeNode<Key,Data>*>& route){
+	bool removeRight=false;
 	AVLTreeNode<Key,Data>* temp = father->GetRight();						//If the node has 2 sons we track for the next value in key, switch the nodes
 	route.PushBack(temp);													//and remove the leaf at the end
 	AVLTreeNode<Key,Data>* next = temp->GetLeft();							//Must contain left, because 2 sons
@@ -491,33 +514,42 @@ void AVLTree<Key,Data>::removeRightTwoSons(AVLTreeNode<Key,Data>* father,List<AV
 	while (next->GetRight() != nullptr){									//Loop to get the leaf we want to switch
 		next = next->GetRight();
 		route.PushBack(next);
+		removeRight=true;
 	}
-	route.RemoveLast();														//Switch the nodes
+	route.RemoveLast();	//Switch the nodes
+	int height = temp->GetHeight();
+	AVLTreeNode<Key,Data>* right = temp->GetRight();
+	AVLTreeNode<Key,Data>* left = temp->GetLeft();
 	*temp = *(next);
-	temp->SetRight(next->GetRight());
-	temp->SetLeft(next->GetLeft());
-	delete next;
+	temp->SetRight(right);
+	temp->SetLeft(left);
+	temp->SetHeight(height);
 	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);		//The last node before the leaf.
-	(*it)->SetRight(nullptr);
+	removeNode((*it),removeRight,route);
 }
 
 template<class Key, class Data>
-void AVLTree<Key,Data>::removeLeftTwoSons(AVLTreeNode<Key,Data>* father,List<AVLTreeNode<Key,Data>*>& route){
+void AVLTree<Key,Data>::removeLeftTwoSons(AVLTreeNode<Key,Data>* father,List<AVLTreeNode<Key,Data>*>& route){\
+	bool removeRight=false;
 	AVLTreeNode<Key,Data>* temp = father->GetLeft();						//Saves the pointer to switch with next
 	route.PushBack(temp);
-	AVLTreeNode<Key,Data>* next = temp->GetRight();							//Must contain left, because 2 sons
+	AVLTreeNode<Key,Data>* next = temp->GetLeft();							//Must contain right, because 2 sons
 	route.PushBack(next);													//We save the route to the leaf we switch
-	while (next->GetLeft() != nullptr){										//Loop to get the leaf we want to switch
-		next = next->GetLeft();
+	while (next->GetRight() != nullptr){										//Loop to get the leaf we want to switch
+		next = next->GetRight();
 		route.PushBack(next);
+		removeRight=true;
 	}
 	route.RemoveLast();
+	int height = temp->GetHeight();
+	AVLTreeNode<Key,Data>* right = temp->GetRight();
+	AVLTreeNode<Key,Data>* left = temp->GetLeft();
 	*temp = *next;															//Switch the nodes
-	temp->SetRight(next->GetRight());
-	temp->SetLeft(next->GetLeft());
-	delete next;
+	temp->SetRight(right);
+	temp->SetLeft(left);
+	temp->SetHeight(height);
 	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
-	(*it)->SetRight(nullptr);
+	removeNode((*it),removeRight,route);
 }
 
 
@@ -569,14 +601,14 @@ void AVLTree<Key, Data>::removeFromTree(Key key) {
 			if(cond_right){
 				if((*it)->GetRight()->NumOfSons()==2){
 					removeNode(*it,cond_right,route);
-					handleBF(route,NRemove);
+					handleBF(route,Remove);
 				}else{
 					removeNode(*it,cond_right,route);
 					handleBF(route,Remove);
 				}
 			}else if((*it)->GetLeft()->NumOfSons()==2){
 				removeNode(*it,cond_right,route);
-				handleBF(route,NRemove);
+				handleBF(route,Remove);
 			}else{
 				removeNode(*it,cond_right,route);
 				handleBF(route,Remove);
@@ -767,48 +799,64 @@ void AVLTree<Key, Data>::shiftLR(AVLTreeNode<Key, Data>* node,List<AVLTreeNode<K
 
 template<class Key, class Data>
 void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus status) {
+	typename List<AVLTreeNode<Key, Data>*>::Iterator it(route,false);
 	if((status==Add )||(status==NAdd)){														//If we add, inc the total number of nodes
 		this->numOfNodes++;
 	}
-	if((status==Remove )||(status==NRemove)){												//If we remove,decrease the total number
+	if(status==Remove ){												//If we remove,decrease the total number
 		this->numOfNodes--;
 	}
-	int factor=0,height;																	//factor to manage the height, height to store the height of the node
 	while (route.Size() != 0) {																//Loop to travel the route of the action
-		typename List<AVLTreeNode<Key, Data>*>::Iterator it(route, false);
 		switch (status) {
 		case Add:
-			height=(*it)->GetHeight();														//Manage the height of adding items;
-			(*it)->SetHeight(height-factor+1);
+			if((*it)->IsLeaf()){
+				(*it)->SetHeight(0);
+				break;
+				}
+			if((*it)->GetHeightLeft() > (*it)->GetHeightRight()){
+							(*it)->SetHeight((*it)->GetHeightLeft()+1);
+				}
+			(*it)->SetHeight((*it)->GetHeightRight()+1);
 			break;
 		case Remove:
-			height=(*it)->GetHeight();														//Manage the height of removing items
-			(*it)->SetHeight(height+factor-1);
+			if((*it)->IsLeaf()){
+				(*it)->SetHeight(0);
+				break;
+			}
+			if((*it)->GetHeightLeft() > (*it)->GetHeightRight()){
+				(*it)->SetHeight((*it)->GetHeightLeft()+1);
+			}
+			(*it)->SetHeight((*it)->GetHeightRight()+1);
 			break;
 		default: break;																		//otherwise, do nothing
 		};
 		RollStatus res = (*it)->GetStatus();												//Gets the BF from the node and calculates which rotation to do
+		try {
 		switch (res) {
 		case (RL):																			//For each rotation we lower the tree's total height by 1
 			shiftRL(*it,route);
-			factor++;
+		it.Prev();
 			break;
 		case (RR):
 			shiftRR(*it,route);
-			factor++;
+		it.Prev();
 			break;
 		case (LL):
 			shiftLL(*it,route);
-			factor++;
+		it.Prev();
 			break;
 		case (LR):
 			shiftLR(*it,route);
-			factor++;
+		it.Prev();;
 			break;
 		case (OK):
+			it.Prev();
 			route.RemoveLast();
 			break;
 		};
+		} catch(IteratorAtStart& e) {
+			return;
+		}
 	}
 }
 
