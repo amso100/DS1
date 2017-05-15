@@ -32,8 +32,13 @@ bool StudentPower::operator==(const StudentPower& other) {
 bool StudentPower::operator<(const StudentPower& other) {
 	if(this->power < other.power)
 		return true;
-	else if(this->power == other.power && this->student_id < other.student_id)
+	else if(this->power == other.power && this->student_id > other.student_id)
 		return true;
 	else
 		return false;
+}
+
+void StudentPower::operator=(const StudentPower& other) {
+	this->student_id = other.student_id;
+	this->power = other.power;
 }

@@ -21,6 +21,8 @@ int Team::GetID() {
 }
 
 void Team::AddStudent(Student* student) {
+	if(student->GetID() == 0 || student->GetGrade() == 0 || student->GetPower() == 0)
+		throw InvalidInput();
 	try {
 		//First, add student to tree of students in team.
 		this->team_students.insertToTree(StudentPower(student->GetID(), student->GetPower()), student);
@@ -52,7 +54,8 @@ StudentPower Team::MostPowerfulInGroup() {
 }
 
 StudentPower* Team::GetStudentsByPower(int* size) {
-	StudentPower* arr = this->team_students.ReverseInorderKeys();
+	StudentPower* temp = this->team_students.InorderKeys();
+	StudentPower* arr = this->ReverseArray(temp, this->team_size);
 	*size = this->team_size;
 	return arr;
 }
@@ -70,6 +73,24 @@ void Team::UpdateMostPowerful() {
 		this->best = most_power;
 	else
 		this->best = StudentPower(0, 0);
+}
+
+StudentPower* Team::ReverseArray(StudentPower* arr, int len) {
+	if(len == 0)
+		return nullptr;
+	StudentPower* reverse = new StudentPower[len];
+	for(int i=0; i<len; i++)
+		reverse[len - i - 1] = arr[i];
+	return reverse;
+}
+
+Student** Team::ReverseStudents(Student** arr, int len) {
+	if(len == 0)
+		return nullptr;
+	Student** reverse = new Student*[len];
+	for(int i=0; i<len; i++)
+		reverse[len - i - 1] = arr[i];
+	return reverse;
 }
 
 int GetCountInGrade(Student** stud_arr, int len, int grade) {
@@ -167,8 +188,12 @@ StudentPower* MergePairsByPower(StudentPower* arr1, int len1, StudentPower* arr2
 
 
 void Team::IncreaseLevel(int grade, int inc) {
-	StudentPower* power_arr = this->team_students.ReverseInorderKeys();
-	Student**     studs_arr = this->team_students.ReverseInorderData();
+	StudentPower* temp = this->team_students.InorderKeys();
+	StudentPower* power_arr = this->ReverseArray(temp, this->team_size);
+	delete temp;
+	Student**     temp2 = this->team_students.InorderData();
+	Student**     studs_arr = this->ReverseStudents(temp2, this->team_size);
+	delete temp2;
 	int grade_count = GetCountInGrade(studs_arr, this->team_size, grade);
 	Student** grade_arr = StudentsOnlyInGrade(studs_arr, grade_count, grade);
 	Student** not_grade = NotInGrade(studs_arr, this->team_size, grade);

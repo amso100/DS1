@@ -53,6 +53,8 @@ private:
 	StudentPower* PowerNotGrade(Student** students, StudentPower* power_arr, int len, int grade);
 	Student** MergeStudsByPower(Student** arr1, int len1, Student** arr2, int len2);
 	StudentPower* MergePairsByPower(StudentPower* arr1, int len1, StudentPower* arr2, int len2);
+	StudentPower* ReverseArray(StudentPower* arr, int len);
+	Student** ReverseStudents(Student** arr, int len);
 
 public:
 

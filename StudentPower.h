@@ -24,6 +24,7 @@ public:
 	void SetPower(int pow);
 	bool operator==(const StudentPower& other);
 	bool operator<(const StudentPower& other);
+	void operator=(const StudentPower& other);
 };
 
 #endif /* STUDENTPOWER_H_ */

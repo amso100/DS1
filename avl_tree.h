@@ -107,8 +107,8 @@ public:
 	int size();
 	void PrintInorder();
 	void PrintPreorder();
-	Key* ReverseInorderKeys();
-	Data* ReverseInorderData();
+	Key* InorderKeys();
+	Data* InorderData();
 	bool Exists(Key key);
 	void UpdateTreeFromArrays(Key* key_array, int len_key, Data* data_array, int len_data);
 	Key getBiggestKey();
@@ -142,6 +142,25 @@ public:
 		addTreeKeys(array+1,node->GetRight());
 		return;
 	}
+
+	int InorderTreeKeys(Key* arr, AVLTreeNode<Key, Data>* node, int index) {
+		if(node == nullptr)
+			return index;
+		index = InorderTreeKeys(arr, node->GetLeft(), index);
+		arr[index++] = node->GetKey();
+		index = InorderTreeKeys(arr, node->GetRight(), index);
+		return index;
+	}
+
+	int InorderTreeData(Data* arr, AVLTreeNode<Key, Data>* node, int index) {
+			if(node == nullptr)
+				return index;
+			index = InorderTreeData(arr, node->GetLeft(), index);
+			arr[index++] = node->GetData();
+			index = InorderTreeData(arr, node->GetRight(), index);
+			return index;
+		}
+
 	bool testSearchTree(AVLTreeNode<Key,Data>* node){
 		if(!node){
 			return false;
@@ -157,21 +176,21 @@ public:
 		return true;
 	}
 
-	Key* GetTreeKeys(AVLTreeNode<Key,Data>* node) {
-		if(!node){
+	Key* GetTreeKeys() {
+		if(!this->numOfNodes){
 			return nullptr;
 		}
 		Key* array = new Key[numOfNodes];
-		addTreeKeys(array,root);
+		InorderTreeKeys(array, this->root, 0);
 		return array;
 	}
 
-	Data* GetTreeData(AVLTreeNode<Key,Data>* node){
-		if(!node){
+	Data* GetTreeData(){
+		if(!this->numOfNodes){
 			return nullptr;
 		}
 		Data* array = new Data[numOfNodes];
-		addValuesToTree(array,root);
+		InorderTreeData(array, this->root, 0);
 		return array;
 	}
 	///// The rest of the tree functions//////
@@ -432,26 +451,30 @@ void AVLTree<Key,Data>::removeRoot(List<AVLTreeNode<Key,Data>*> route){
 			delete root;
 			root = temp;
 		}
-		temp = temp->GetRight();
-		delete root;
-		root = temp;
+		else {
+			temp = temp->GetRight();
+			delete root;
+			root = temp;
+		}
 	}
-	route.PushBack(temp);												//If the root has 2 sons, we'll pick the left son, travel the farthest
-	temp = temp->GetLeft();												//right, switch between the nodes, and delete the leaf.
-	route.PushBack(temp);												//add the route to the node we're switching
-	while(temp->GetRight()!=nullptr){									//Loop until we get to the last right node possible
-		temp = temp->GetRight();
-		route.PushBack(temp);
+	else {
+		route.PushBack(temp);												//If the root has 2 sons, we'll pick the left son, travel the farthest
+		temp = temp->GetLeft();												//right, switch between the nodes, and delete the leaf.
+		route.PushBack(temp);												//add the route to the node we're switching
+		while(temp->GetRight()!=nullptr){									//Loop until we get to the last right node possible
+			temp = temp->GetRight();
+			route.PushBack(temp);
+		}
+		route.RemoveLast();													//Switch the nodes
+		int height = root->GetHeight();
+		temp->SetRight(root->GetRight());
+		temp->SetLeft(root->GetLeft());
+		*(root) = *temp;
+		root->SetHeight(height);
+		typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
+		delete temp;
+		(*it)->SetRight(nullptr);
 	}
-	route.RemoveLast();													//Switch the nodes
-	int height = root->GetHeight();
-	temp->SetRight(root->GetRight());
-	temp->SetLeft(root->GetLeft());
-	*(root) = *temp;
-	root->SetHeight(height);
-	typename List<AVLTreeNode<Key,Data>*>::Iterator it(route,false);
-	delete temp;
-	(*it)->SetRight(nullptr);
 }
 
 template<class Key, class Data>
@@ -901,13 +924,13 @@ void AVLTree<Key,Data>::PrintInorder() {
 }
 
 template<class Key, class Data>
-Data* AVLTree<Key, Data>::ReverseInorderData() {
-	return this->GetTreeData(this->root);
+Data* AVLTree<Key, Data>::InorderData() {
+	return this->GetTreeData();
 }
 
 template<class Key, class Data>
-Key* AVLTree<Key, Data>::ReverseInorderKeys() {
-	return this->GetTreeKeys(this->root);
+Key* AVLTree<Key, Data>::InorderKeys() {
+	return this->GetTreeKeys();
 }
 
 template<class Key, class Data>

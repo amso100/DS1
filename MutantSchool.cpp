@@ -141,7 +141,7 @@ StudentPower* MutantSchool::GetAllStudentsByPower(int team_id, int* size) {
 	if(team_id == 0)
 		throw Failure();
 	else if(team_id < 0)
-		return this->students_by_power.ReverseInorderKeys();
+		return this->students_by_power.InorderKeys();
 	else {
 		if(this->school_teams.Exists(team_id) == false)
 			throw Failure();
@@ -247,8 +247,12 @@ StudentPower* MutantSchool::MergePairsByPower(StudentPower* arr1, int len1, Stud
 //Also switch power and Student in students_by_power tree.
 void MutantSchool::IncreaseLevel(int grade, int inc) {
 	//For the whole school power tree:
-	StudentPower* power_arr = this->students_by_power.ReverseInorderKeys();
-	Student**     studs_arr = this->students_by_power.ReverseInorderData();
+	StudentPower* temp = this->students_by_power.InorderKeys();
+	StudentPower* power_arr = this->ReverseArray(temp, this->students_by_power.size());
+	delete temp;
+	Student**     temp2 = this->students_by_power.InorderData();
+	Student**     studs_arr = this->ReverseStudents(temp2, this->students_by_power.size());
+	delete temp2;
 	int grade_count = GetCountInGrade(studs_arr, this->student_count, grade);
 	Student** grade_arr = StudentsOnlyInGrade(studs_arr, grade_count, grade);
 	Student** not_grade = NotInGrade(studs_arr, this->student_count, grade);
@@ -263,11 +267,30 @@ void MutantSchool::IncreaseLevel(int grade, int inc) {
 	this->students_by_power.UpdateTreeFromArrays(updated_pairs, this->student_count, updated_studs, this->student_count);
 
 	//Do for every team as well.
-	Team** all_teams = this->school_teams.ReverseInorderData();
+	Team** all_teams = this->school_teams.InorderData();
 	for(int i = 0; i < this->school_teams.size(); i++) {
 		all_teams[i]->IncreaseLevel(grade, inc);
 	}
 }
+
+StudentPower* MutantSchool::ReverseArray(StudentPower* arr, int len) {
+	if(len == 0)
+		return nullptr;
+	StudentPower* reverse = new StudentPower[len];
+	for(int i=0; i<len; i++)
+		reverse[len - i - 1] = arr[i];
+	return reverse;
+}
+
+Student** MutantSchool::ReverseStudents(Student** arr, int len) {
+	if(len == 0)
+		return nullptr;
+	Student** reverse = new Student*[len];
+	for(int i=0; i<len; i++)
+		reverse[len - i - 1] = arr[i];
+	return reverse;
+}
+
 //	if(grade <= 0 || inc <= 0)
 //		throw Failure();
 //	List<Student*> studs_in_grade;

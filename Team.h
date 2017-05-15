@@ -21,6 +21,8 @@ private:
 	StudentPower best;
 	AVLTree<StudentPower, Student*> team_students;
 	void UpdateMostPowerful();
+	StudentPower* ReverseArray(StudentPower* arr, int len);
+	Student** ReverseStudents(Student** arr, int len);
 public:
 
 	//Creates a new empty team.

@@ -18,7 +18,7 @@ void PrintStudentArray(StudentPower* arr, int len) {
 
 int main() {
 	MutantSchool school;
-
+	int y = 0;
 	for (int i = 1; i < 4; i++) {
 		std::cout << "Adding Student with id: " << i << std::endl;
 		std::cout << "Power level: " << 1 << std::endl;
@@ -64,6 +64,10 @@ int main() {
 		school.AddTeam(m);
 	}
 	std::cout << "Finished adding teams.\n";
+
+	school.GetAllStudentsByPower(2, &y);
+	std::cout << "size of team 2: " << y << std::endl;
+
 	for (int n = 1; n < 4; n++) {
 		std::cout << "Moving Student " << n << " to Group 1...";
 		try {
@@ -73,6 +77,10 @@ int main() {
 			std::cout << "Bad" << std::endl;
 		}
 	}
+
+	school.GetAllStudentsByPower(2, &y);
+	std::cout << "size of team 2: " << y << std::endl;
+
 	std::cout << "Moving Student " << 4 << " to Group 2...";
 	try {
 		school.MoveStudentToTeam(4, 2);
@@ -80,6 +88,11 @@ int main() {
 	} catch (...) {
 		std::cout << "Bad" << std::endl;
 	}
+
+	StudentPower* arr1 = school.GetAllStudentsByPower(2, &y);
+	std::cout << "size of team 2: " << y << std::endl;
+	PrintStudentArray(arr1, y);
+
 	std::cout << "Moving Student " << 4 << " to Group 3...";
 	try {
 		school.MoveStudentToTeam(4, 3);
@@ -87,6 +100,11 @@ int main() {
 	} catch (Failure&) {
 		std::cout << "Good" << std::endl;
 	}
+
+	arr1 = school.GetAllStudentsByPower(2, &y);
+	std::cout << "size of team 2: " << y << std::endl;
+	PrintStudentArray(arr1, y);
+
 	std::cout << "Moving Student " << 6 << " to Group 2...";
 	try {
 		school.MoveStudentToTeam(6, 2);
@@ -94,6 +112,11 @@ int main() {
 	} catch (...) {
 		std::cout << "Bad" << std::endl;
 	}
+
+	arr1 = school.GetAllStudentsByPower(2, &y);
+	std::cout << "size of team 2: " << y << std::endl;
+	PrintStudentArray(arr1, y);
+
 	std::cout << "Moving Student " << 7 << " to Group 1...";
 	try {
 		school.MoveStudentToTeam(7, 1);
@@ -108,6 +131,11 @@ int main() {
 	} catch (...) {
 		std::cout << "Bad" << std::endl;
 	}
+
+	arr1 = school.GetAllStudentsByPower(2, &y);
+	std::cout << "size of team 2: " << y << std::endl;
+	PrintStudentArray(arr1, y);
+
 	for (int j = 3; j < 6; j++) {
 		std::cout << "Adding team number " << j << "....";
 		school.AddTeam(j);
@@ -120,6 +148,11 @@ int main() {
 	} catch (...) {
 		std::cout << "Bad" << std::endl;
 	}
+
+	arr1 = school.GetAllStudentsByPower(2, &y);
+	std::cout << "size of team 2: " << y << std::endl;
+	PrintStudentArray(arr1, y);
+
 	std::cout << "Moving Student " << 8 << " to Group 4...";
 	try {
 		school.MoveStudentToTeam(8, 4);
@@ -146,10 +179,23 @@ int main() {
 	} catch (Failure&) {
 		std::cout << "Good" << std::endl;
 	}
+
+	arr1 = school.GetAllStudentsByPower(2, &y);
+	std::cout << "size of team 2: " << y << std::endl;
+	PrintStudentArray(arr1, y);;
+
 	std::cout << "Moving student number 8 to team 1" << std::endl;
 	school.MoveStudentToTeam(8, 1);
+
+	school.GetAllStudentsByPower(2, &y);
+		std::cout << "size of team 2: " << y << std::endl;
+
 	std::cout << "Moving student number 7 to team 2" << std::endl;
 	school.MoveStudentToTeam(7, 2);
+
+	arr1 = school.GetAllStudentsByPower(2, &y);
+	std::cout << "size of team 2: " << y << std::endl;
+	PrintStudentArray(arr1, y);
 
 	std::cout << "Getting the strongest in Team 1....";
 	std::cout << "Strongest: " << school.GetMostPowerful(1) << std::endl;
