@@ -849,7 +849,9 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus
 			if((*it)->GetHeightLeft() > (*it)->GetHeightRight()){
 							(*it)->SetHeight((*it)->GetHeightLeft()+1);
 				}
-			(*it)->SetHeight((*it)->GetHeightRight()+1);
+			else{
+				(*it)->SetHeight((*it)->GetHeightRight()+1);								//There was no else <<-Here
+			}
 			break;
 		case Remove:
 			if((*it)->IsLeaf()){
@@ -859,7 +861,9 @@ void AVLTree<Key, Data>::handleBF(List<AVLTreeNode<Key,Data>*>& route,TreeStatus
 			if((*it)->GetHeightLeft() > (*it)->GetHeightRight()){
 				(*it)->SetHeight((*it)->GetHeightLeft()+1);
 			}
-			(*it)->SetHeight((*it)->GetHeightRight()+1);
+			else{
+				(*it)->SetHeight((*it)->GetHeightRight()+1);								//<<-- And Here
+			}
 			break;
 		default: break;																		//otherwise, do nothing
 		};
